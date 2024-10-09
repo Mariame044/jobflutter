@@ -1,11 +1,16 @@
+// lib/screens/detailmetier.dart
+
 import 'package:flutter/material.dart';
-import '../models/categorie.dart';
+import 'package:jobaventure/models/categorie.dart';
+import 'package:jobaventure/models/video.dart';
+import 'package:jobaventure/pages/videoparmetier.dart'; // Assurez-vous que le chemin d'importation est correct
 
 class DetailMetier extends StatelessWidget {
   final Metier metier;
+  final Video? video; // Assurez-vous que cela est défini
 
-  DetailMetier({required this.metier});
-
+  const DetailMetier({Key? key, required this.metier, this.video}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,36 +22,79 @@ class DetailMetier extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Vérifiez que l'imageUrl n'est pas nulle ou vide avant de charger l'image
-            if (metier.imageUrl.isNotEmpty)
-              Image.network(
-                // Utilisez l'adresse IP de votre machine si vous testez sur un émulateur ou un appareil
-                'http://localhost:8080/api/enfants/${metier.imageUrl}', 
-                // Remplacez `<votre_adresse_ip>` par l'adresse IP de votre machine (par exemple, 192.168.1.10)
-                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                          : null,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Placeholder(); // Affichez un Placeholder en cas d'erreur
-                },
+            Container(
+              padding: EdgeInsets.all(8.0),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                     
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GroupedVideosScreen(),
+                          ),
+                        );
+                    
+                       
+                      
+                    },
+                    child: Text('Video'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to MetierPage
+                      // Implémentez votre logique ici
+                    },
+                    child: Text('Metier'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle Jeu de rôle button press
+                    },
+                    child: Text('Jeu de rôle'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle Interviews button press
+                    },
+                    child: Text('Interviews'),
+                  ),
+                ],
               ),
-            const SizedBox(height: 16),
+            ),
+            // Afficher l'image du métier
+            metier.imageUrl != null
+                ? Image.network(
+                    'http://localhost:8080/' + metier.imageUrl!,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    height: 200,
+                    color: Colors.grey,
+                    child: Center(child: Text('Aucune image disponible')),
+                  ),
+            SizedBox(height: 16),
+            // Nom du métier
+            Text(
+              metier.nom,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            // Description du métier
             Text(
               metier.description,
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Catégorie: ${metier.categorie.nom}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            SizedBox(height: 16),
+            // Catégorie du métier
+            if (metier.categorie != null) 
+              Text(
+                'Catégorie: ${metier.categorie!.nom}',
+                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+              ),
           ],
         ),
       ),

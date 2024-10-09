@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import pour SharedPreferences
 import 'login.dart'; // Import de la page de connexion
+import 'home.dart'; // Import de la page d'accueil
 
 class CoverPage extends StatefulWidget {
   @override
@@ -27,39 +29,36 @@ class _CoverPageState extends State<CoverPage> with SingleTickerProviderStateMix
     // Démarre l'animation
     _controller.forward();
 
-    // Délai avant de naviguer vers la page de connexion
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
-      Future.delayed(Duration(seconds: 8), () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => LoginPage(),
-        ));
-      });
-    });
+    // Vérifiez le statut de connexion
+    _checkLoginStatus();
+  }
 
-    // Démarrer l'affichage des métiers après la page de couverture
-    Future.delayed(Duration(seconds: 10), () {
-      _navigateToJobPage(0); // Démarrer avec la première page de métier
-    });
+  // Vérifier si l'utilisateur est déjà connecté
+  void _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token'); // Récupération du token stocké
+
+    // Si un token existe, redirection vers la page d'accueil
+    if (token != null) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => HomePage(), // Redirigez vers HomePage
+      ));
+    } else {
+      // Si pas de token, attendez avant de naviguer vers la page de connexion
+      SchedulerBinding.instance!.addPostFrameCallback((_) {
+        Future.delayed(Duration(seconds: 8), () {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => LoginPage(), // Redirection vers la page de connexion
+          ));
+        });
+      });
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  // Fonction pour naviguer vers la page de métier
-  void _navigateToJobPage(int jobIndex) {
-    if (jobIndex < 3) { // Assurez-vous que vous avez trois métiers
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => LoginPage(),
-      ));
-    } else {
-      // Si tous les métiers ont été affichés, retournez à la page de connexion
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => LoginPage(),
-      ));
-    }
   }
 
   @override
@@ -86,7 +85,7 @@ class _CoverPageState extends State<CoverPage> with SingleTickerProviderStateMix
                 children: [
                   // Logo avec animation
                   AnimatedContainer(
-                    duration: Duration(seconds: 2),
+                    duration: Duration(seconds: 10),
                     curve: Curves.bounceIn,
                     child: Image.asset('images/logo.png', width: 200), // Remplacez par votre logo
                   ),

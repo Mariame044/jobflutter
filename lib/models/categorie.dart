@@ -1,47 +1,69 @@
-// lib/models.dart
-
-class Categorie {
-  final int id;
-  final String nom;
-
-  Categorie({
-    required this.id,
-    required this.nom,
-  });
-
-  factory Categorie.fromJson(Map<String, dynamic> json) {
-    return Categorie(
-      id: json['id'],
-      nom: json['nom'] ?? 'Catégorie non disponible', // Valeur par défaut
-    );
-  }
-}
 class Metier {
   final int id;
   final String nom;
   final String description;
-   final Categorie categorie;
-  final String imageUrl; // Assurez-vous que ce soit un String
-  // Autres propriétés...
+  final String? imageUrl;
+  final Categorie? categorie;
 
   Metier({
     required this.id,
     required this.nom,
     required this.description,
-    required this.categorie,
-    required String imageUrl,
-  }) : imageUrl = imageUrl.replaceAll('\\', '/'); // Remplace les barres obliques inversées par des barres obliques
+    this.imageUrl,
+    this.categorie,
+  });
 
+  // Convertit un objet Metier en un map (pour JSON)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nom': nom,
+      'description': description,
+      'imageUrl': imageUrl,
+      'categorie': categorie?.toJson(),
+    };
+  }
 
-
-
+  // Crée un objet Metier à partir d'un map (JSON)
   factory Metier.fromJson(Map<String, dynamic> json) {
     return Metier(
-      id: json['id'], // Assurez-vous d'inclure l'ID
-      nom: json['nom'] ?? 'Nom non disponible', // Valeur par défaut
-      description: json['description'] ?? 'Description non disponible', // Valeur par défaut
-      imageUrl: json['imageUrl'] != null ? json['imageUrl'] : null, // Gérer null
-      categorie: Categorie.fromJson(json['categorie']),
+      id: json['id'],
+      nom: json['nom'],
+      description: json['description'],
+      imageUrl: json['imageUrl'],
+      categorie: json['categorie'] != null 
+          ? Categorie.fromJson(json['categorie']) 
+          : null,
+    );
+  }
+}
+
+class Categorie {
+  final int id;
+  final String nom;
+  
+
+  Categorie({
+    required this.id,
+    required this.nom,
+    
+  });
+
+  // Convertit un objet Categorie en un map (pour JSON)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nom': nom,
+   
+    };
+  }
+
+  // Crée un objet Categorie à partir d'un map (JSON)
+  factory Categorie.fromJson(Map<String, dynamic> json) {
+    return Categorie(
+      id: json['id'],
+      nom: json['nom'],
+    
     );
   }
 }

@@ -2,11 +2,14 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:jobaventure/models/RegisterUserDto.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Ajoutez cette importation pour le stockage local
 import '../models/auth.dart';
 
 class AuthService {
   final String baseUrl = "http://localhost:8080/auth"; // Remplacez par l'URL de votre API
+
+
 
   // Méthode pour se connecter
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -35,6 +38,20 @@ class AuthService {
       }
     } catch (e) {
       throw Exception('Error: $e');
+    }
+  }
+  Future<void> signup(RegisterUserDto input) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/signup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(input.toJson()),
+    );
+
+    if (response.statusCode != 201) {
+      // Si la réponse n'est pas OK, lancez une exception
+      throw Exception('Échec de l\'inscription: ${response.body}');
     }
   }
 

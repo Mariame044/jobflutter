@@ -22,7 +22,7 @@ class MetierService {
   }
 
   // Méthode pour récupérer les métiers
-  Future<List<Metier>> fetchMetiers() async {
+  Future<List<Metier>> getAllMetiers() async {
     final response = await http.get(
       Uri.parse(baseUrl),
       headers: await getHeaders(), // Ajoutez les en-têtes à la requête
