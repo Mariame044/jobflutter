@@ -1,7 +1,6 @@
-// lib/video_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:jobaventure/pages/videoplayer.dart';
+// Assurez-vous d'importer correctement votre widget
 import '../models/video.dart';
 
 class VideoDetailScreen extends StatelessWidget {
@@ -13,25 +12,21 @@ class VideoDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(video.description), // Utiliser la description de la vidéo comme titre
+        title: Text(video.description ?? 'Vidéo'),
       ),
       body: Column(
         children: [
-          // Widget pour le lecteur vidéo (utilisez un package de lecteur vidéo pour la lecture réelle)
           Container(
-            height: 200,
+            height: 300, // Ajustez la hauteur selon vos besoins
             width: double.infinity,
             child: video.url != null
-                ? VideoPlayerWidget(videoUrl: 'http://localhost:8080/' + video.url!) // Utilisez un widget de lecteur vidéo
+                ? VideoPlayerWidget(videoUrl: 'http://localhost:8080/' + video.url!)
                 : Center(child: Text('Aucune vidéo disponible')),
           ),
           SizedBox(height: 16),
-          Text('Durée: ${video.duree}'),
+          Text('Durée: ${video.duree ?? 'Inconnue'}'), // Utilisez 'Inconnue' si duree est null
         ],
       ),
     );
   }
 }
-
-// Vous aurez également besoin d'un VideoPlayerWidget pour gérer la lecture de la vidéo
-// Importez des packages de lecteur vidéo comme video_player pour cette fonctionnalité

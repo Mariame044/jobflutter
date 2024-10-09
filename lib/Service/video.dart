@@ -43,6 +43,21 @@ class VideoService {
       throw Exception('Échec du chargement des vidéos');
     }
   }
+
+
+  // Méthode pour récupérer les vidéos par métier en utilisant l'ID du métier
+  Future<List<Video>> getVideosByMetierId(int metierId) async {
+    final headers = await getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/metier/$metierId'), headers: headers);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonList = json.decode(response.body);
+      return jsonList.map((json) => Video.fromJson(json)).toList();
+    } else {
+      throw Exception('Échec du chargement des vidéos pour le métier');
+    }
+  }
+
    // Nouvelle méthode pour récupérer les vidéos par métier
  
    Future<Map<String, List<Video>>> getVideosByMetier() async {

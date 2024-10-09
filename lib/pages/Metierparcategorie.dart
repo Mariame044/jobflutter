@@ -1,77 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:jobaventure/models/categorie.dart';
-import 'detailsmetier.dart'; // Assurez-vous que le chemin est correct
+import 'package:jobaventure/Service/video.dart'; // Importation du service vidéo
+import 'package:jobaventure/models/categorie.dart'; // Importation du modèle de catégorie
+import 'detailsmetier.dart'; // Importation de la page de détails du métier
 
 class MetierCategoryPage extends StatelessWidget {
-  final String categoryName;
-  final List<Metier> metiers;
+  final String categoryName; // Nom de la catégorie
+  final List<Metier> metiers; // Liste des métiers
+  final VideoService videoService; // Service vidéo
 
-  MetierCategoryPage({required this.categoryName, required this.metiers});
+  // Constructeur avec paramètres requis
+  MetierCategoryPage({
+    required this.categoryName,
+    required this.metiers,
+    required this.videoService,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Vérifiez si la liste de métiers est nulle ou vide
-    if (metiers == null || metiers.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(categoryName),
-        ),
-        body: Center(
-          child: Text('Aucun métier trouvé pour cette catégorie.'),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(categoryName),
+        title: Text(categoryName), // Titre de la barre d'application
       ),
       body: Column(
         children: [
-          // GridView of metiers
+          // Grille de métiers
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, // Nombre de cartes par ligne
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
-                childAspectRatio: 0.8, // Ajustement du ratio pour l'apparence
+                childAspectRatio: 0.8, // Ratio d'aspect pour l'apparence
               ),
               padding: EdgeInsets.all(8.0),
-              itemCount: metiers.length, // Utilisation de metiers.length
+              itemCount: metiers.length, // Nombre total d'éléments dans la liste
               itemBuilder: (context, index) {
-                Metier metier = metiers[index];
+                Metier metier = metiers[index]; // Récupération du métier
                 return GestureDetector(
                   onTap: () {
+                    // Navigation vers la page de détails du métier
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailMetier(metier: metier),
+                        builder: (context) => DetailMetier(
+                          metier: metier,
+                          videoService: videoService, // Passez l'instance de videoService ici
+                        ),
                       ),
                     );
                   },
                   child: Card(
                     elevation: 4,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: metier.imageUrl != null
                               ? Image.network(
                                   'http://localhost:8080/' + metier.imageUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // Gestion des erreurs de chargement d'image
-                                    return Container(
-                                      color: Colors.grey,
-                                      child: Center(
-                                        child: Text(
-                                          'Erreur de chargement',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    );
-                                  },
                                 )
                               : Container(
                                   color: Colors.grey,
@@ -81,7 +67,7 @@ class MetierCategoryPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            metier.nom,
+                            metier.nom, // Nom du métier
                             style: TextStyle(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
@@ -89,11 +75,10 @@ class MetierCategoryPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Text(
-                            metier.description,
+                            metier.description, // Description du métier
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.black54),
                           ),
                         ),
                       ],

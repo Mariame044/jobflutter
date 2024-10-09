@@ -1,16 +1,20 @@
-// lib/screens/detailmetier.dart
-
 import 'package:flutter/material.dart';
+import 'package:jobaventure/Service/video.dart';
 import 'package:jobaventure/models/categorie.dart';
 import 'package:jobaventure/models/video.dart';
-import 'package:jobaventure/pages/videoparmetier.dart'; // Assurez-vous que le chemin d'importation est correct
+import 'package:jobaventure/pages/videoparmetier.dart';
+ // Importez la page de détails de métier
 
 class DetailMetier extends StatelessWidget {
-  final Metier metier;
-  final Video? video; // Assurez-vous que cela est défini
+  final Metier metier; // Instance du métier
+  final VideoService videoService; // Instance du service vidéo
 
-  const DetailMetier({Key? key, required this.metier, this.video}) : super(key: key);
-  
+  const DetailMetier({
+    Key? key,
+    required this.metier,
+    required this.videoService, // Assurez-vous que ce paramètre est requis
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +26,7 @@ class DetailMetier extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Section des boutons
             Container(
               padding: EdgeInsets.all(8.0),
               color: Colors.white,
@@ -29,26 +34,37 @@ class DetailMetier extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                     
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GroupedVideosScreen(),
-                          ),
+                    onPressed: () async {
+                      try {
+                        // Naviguer vers l'écran des vidéos pour ce métier
+                        List<Video>? videos = await videoService.getVideosByMetierId(metier.id);
+                        if (videos != null && videos.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupedVideosScreen(videos: videos),
+                            ),
+                          );
+                        } else {
+                          // Afficher un message si aucune vidéo n'est trouvée
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Aucune vidéo disponible pour ce métier.')),
+                          );
+                        }
+                      } catch (e) {
+                        // Gestion des erreurs lors de la récupération des vidéos
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Erreur lors de la récupération des vidéos: $e')),
                         );
-                    
-                       
-                      
+                      }
                     },
-                    child: Text('Video'),
+                    child: Text('Vidéo'),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to MetierPage
-                      // Implémentez votre logique ici
+                     
                     },
-                    child: Text('Metier'),
+                    child: Text('Métier'),
                   ),
                   ElevatedButton(
                     onPressed: () {

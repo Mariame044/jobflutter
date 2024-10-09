@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../Service/metier_service.dart'; // Assurez-vous que le chemin d'importation est correct
 import '../models/categorie.dart'; // Importez le modèle Categorie
 import 'package:jobaventure/Service/auth_service.dart'; // Import de AuthService
-import 'detailsmetier.dart';
-import 'metierparcategorie.dart'; // Nouvelle page pour afficher les métiers par catégorie
+import 'detailsmetier.dart'; // Je naviguez vers MetierCategoryPage
+import 'Metierparcategorie.dart'; // Nouvelle page pour afficher les métiers par catégorie
+import '../Service/video.dart'; // Import du service vidéo
 
 class CategoriePage extends StatefulWidget {
   @override
@@ -12,7 +13,13 @@ class CategoriePage extends StatefulWidget {
 
 class _CategoriePageState extends State<CategoriePage> {
   late Future<List<Metier>> futureMetiers;
-  final MetierService metierService = MetierService(AuthService()); // Injectez AuthService
+  final AuthService authService = AuthService(); // Instance d'AuthService
+  final MetierService metierService; // Déclaration du service Métier
+  late final VideoService videoService; // Déclaration du service Vidéo
+
+  _CategoriePageState() : metierService = MetierService(AuthService()) {
+    videoService = VideoService(authService); // Initialisation de VideoService avec AuthService
+  }
 
   @override
   void initState() {
@@ -33,11 +40,11 @@ class _CategoriePageState extends State<CategoriePage> {
           // Affichage d'un indicateur de chargement pendant que les données sont récupérées
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } 
+          }
           // Gestion des erreurs lors de la récupération des données
           else if (snapshot.hasError) {
             return Center(child: Text('Erreur: ${snapshot.error}'));
-          } 
+          }
           // Si les données sont récupérées mais qu'aucun métier n'est trouvé
           else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('Aucun métier trouvé.'));
@@ -76,6 +83,7 @@ class _CategoriePageState extends State<CategoriePage> {
                         builder: (context) => MetierCategoryPage(
                           categoryName: categoryName,
                           metiers: metiersInCategory,
+                          videoService: videoService, // Passez l'instance de videoService ici
                         ),
                       ),
                     );

@@ -1,77 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:jobaventure/Service/auth_service.dart';
+import 'package:jobaventure/models/video.dart';
 import 'package:jobaventure/pages/detailvideo.dart';
-import '../models/video.dart';
-import '../Service/video.dart'; // Assurez-vous que le chemin d'importation est correct
+// N'oubliez pas d'importer la page de détails de la vidéo
 
-class GroupedVideosScreen extends StatefulWidget {
-  @override
-  _GroupedVideosScreenState createState() => _GroupedVideosScreenState();
-}
+class GroupedVideosScreen extends StatelessWidget {
+  final List<Video>? videos; // Liste de vidéos pour un métier
 
-class _GroupedVideosScreenState extends State<GroupedVideosScreen> {
-  final VideoService videoService = VideoService(AuthService());
-  Map<String, List<Video>> groupedVideos = {};
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchGroupedVideos();
-  }
-
-  Future<void> fetchGroupedVideos() async {
-    try {
-      // Récupérer toutes les vidéos
-      List<Video> allVideos = await videoService.getAllVideos();
-
-      // Grouper les vidéos par métier
-      for (var video in allVideos) {
-        String metierNom = video.metier?.nom ?? "Inconnu"; // Utiliser "Inconnu" si le métier est null
-        if (groupedVideos[metierNom] == null) {
-          groupedVideos[metierNom] = [];
-        }
-        groupedVideos[metierNom]!.add(video);
-      }
-    } catch (e) {
-      print('Erreur lors du chargement des vidéos: $e');
-    } finally {
-      setState(() {
-        isLoading = false; // Changer l'état une fois que les vidéos sont chargées
-      });
-    }
-  }
+  const GroupedVideosScreen({Key? key, this.videos}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vidéos par Métier'),
+        title: Text('Vidéos pour ce métier'),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
+      body: videos == null || videos!.isEmpty
+          ? Center(child: Text('Aucune vidéo disponible pour ce métier'))
           : ListView.builder(
-              itemCount: groupedVideos.keys.length,
+              itemCount: videos!.length,
               itemBuilder: (context, index) {
-                String metierNom = groupedVideos.keys.elementAt(index);
-                List<Video> videoList = groupedVideos[metierNom]!;
+                Video video = videos![index];
+                return Card(
+                  margin: EdgeInsets.all(8.0), // Marge autour de chaque carte
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0), // Espacement à l'intérieur de la carte
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Titre de la vidéo
 
-                return ExpansionTile(
-                  title: Text(metierNom),
-                  children: videoList.map((video) {
-                    return ListTile(
-                      title: Text(video.description),
-                      onTap: () {
-                        // Naviguer vers l'écran de lecture de la vidéo
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VideoDetailScreen(video: video),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
+                        SizedBox(height: 8.0), // Espacement entre le titre et la description
+                        // Description de la vidéo
+                        Text(
+                          video.description ?? 'Aucune description',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        SizedBox(height: 8.0), // Espacement sous la description
+                        // Ajouter un bouton ou un lien pour voir la vidéo
+                        ElevatedButton(
+                          onPressed: () {
+                            // Naviguer vers l'écran de détail vidéo
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoDetailScreen(video: video),
+                              ),
+                            );
+                          },
+                          child: Text('Voir la vidéo'),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
