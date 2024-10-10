@@ -17,7 +17,8 @@ class MetierService {
     final token = await authService.getToken(); // Récupérer le token JWT
     return {
       'Authorization': 'Bearer $token', // Ajouter le token aux en-têtes
-      'Content-Type': 'application/json' // Optionnel si votre API l'exige
+      'Content-Type': 'application/json',
+         'Accept-Charset': 'utf-8' // Optionnel si votre API l'exige
     };
   }
 
@@ -29,7 +30,9 @@ class MetierService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> jsonData = json.decode(response.body);
+      
+      String utf8Body = utf8.decode(response.bodyBytes);
+        List<dynamic> jsonData = json.decode(utf8Body);
       return jsonData.map((metier) => Metier.fromJson(metier)).toList();
     } else {
       throw Exception('Failed to load metiers: ${response.statusCode} ${response.body}');

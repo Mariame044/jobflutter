@@ -16,7 +16,8 @@ class VideoService {
     final token = await authService.getToken(); // Récupérer le token JWT
     return {
       'Authorization': 'Bearer $token', // Ajouter le token aux en-têtes
-      'Content-Type': 'application/json' // Optionnel si votre API l'exige
+      'Content-Type': 'application/json',
+      'Accept-Charset': 'utf-8'  // Optionnel si votre API l'exige
     };
   }
 
@@ -25,7 +26,7 @@ class VideoService {
     final response = await http.get(Uri.parse('$baseUrl/regarder/$id'), headers: headers);
 
     if (response.statusCode == 200) {
-      return Video.fromJson(json.decode(response.body));
+      return Video.fromJson(json.decode(utf8.decode(response.bodyBytes))); // Décodage en UTF-8
     } else {
       throw Exception('Échec du chargement de la vidéo');
     }
@@ -37,8 +38,8 @@ class VideoService {
     final response = await http.get(Uri.parse(baseUrl), headers: headers); // Utiliser la baseUrl
 
     if (response.statusCode == 200) {
-      List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Video.fromJson(json)).toList(); // Mapper le JSON à une liste de vidéos
+     List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes)); // Décodage en UTF-8
+        return jsonList.map((json) => Video.fromJson(json)).toList(); // Mapper le JSON à une liste de vidéos
     } else {
       throw Exception('Échec du chargement des vidéos');
     }
@@ -51,8 +52,8 @@ class VideoService {
     final response = await http.get(Uri.parse('$baseUrl/metier/$metierId'), headers: headers);
 
     if (response.statusCode == 200) {
-      List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Video.fromJson(json)).toList();
+      List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes)); // Décodage en UTF-8
+        return jsonList.map((json) => Video.fromJson(json)).toList();
     } else {
       throw Exception('Échec du chargement des vidéos pour le métier');
     }
