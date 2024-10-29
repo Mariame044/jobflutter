@@ -11,7 +11,7 @@ class AuthService {
 
 
 
-  // Méthode pour se connecter
+// Méthode pour se connecter
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
@@ -67,10 +67,12 @@ class AuthService {
     return prefs.getString('jwt'); // Retourne le token, ou null s'il n'existe pas
   }
 
+  
   // Méthode pour se déconnecter
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt'); // Supprime le token du stockage local
+    await prefs.remove('auth_token'); // Supprime également l'auth_token du stockage local
   }
 
   // Autres méthodes pour gérer l'authentification peuvent être ajoutées ici

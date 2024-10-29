@@ -17,7 +17,7 @@ class VideoService {
     return {
       'Authorization': 'Bearer $token', // Ajouter le token aux en-têtes
       'Content-Type': 'application/json',
-      'Accept-Charset': 'utf-8'  // Optionnel si votre API l'exige
+     
     };
   }
 
@@ -45,19 +45,34 @@ class VideoService {
     }
   }
 
-
-  // Méthode pour récupérer les vidéos par métier en utilisant l'ID du métier
-  Future<List<Video>> getVideosByMetierId(int metierId) async {
-    final headers = await getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/metier/$metierId'), headers: headers);
+ // Nouvelle méthode pour récupérer les vidéos par métier et tranche d'âge
+  Future<List<Video>> getVideosByMetierAndAge(int metierId) async {
+    final headers = await getHeaders(); // Obtenir les en-têtes avec le token
+    final response = await http.get(
+      Uri.parse('$baseUrl/pour-enfant/metier/$metierId'),
+      headers: headers,
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes)); // Décodage en UTF-8
-        return jsonList.map((json) => Video.fromJson(json)).toList();
+      return jsonList.map((json) => Video.fromJson(json)).toList(); // Mapper les vidéos
     } else {
-      throw Exception('Échec du chargement des vidéos pour le métier');
+      throw Exception('Échec du chargement des vidéos');
     }
   }
+
+  // // Méthode pour récupérer les vidéos par métier en utilisant l'ID du métier
+  // Future<List<Video>> getVideosByMetierId(int metierId) async {
+  //   final headers = await getHeaders();
+  //   final response = await http.get(Uri.parse('$baseUrl/metier/$metierId'), headers: headers);
+
+  //   if (response.statusCode == 200) {
+  //     List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes)); // Décodage en UTF-8
+  //       return jsonList.map((json) => Video.fromJson(json)).toList();
+  //   } else {
+  //     throw Exception('Échec du chargement des vidéos pour le métier');
+  //   }
+  // }
 
    // Nouvelle méthode pour récupérer les vidéos par métier
  

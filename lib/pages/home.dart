@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:jobaventure/Service/quiz.dart';
 import 'package:jobaventure/models/categorie.dart';
 import 'package:jobaventure/pages/Metierparcategorie.dart';
 import 'package:jobaventure/pages/a.dart';
 import 'package:jobaventure/pages/categorie.dart';
+import 'package:jobaventure/pages/profile.dart';
+import 'package:jobaventure/pages/quizparmetier.dart';
 import '../Service/metier_service.dart'; // Import du service des métiers
-import 'button_nav.dart'; // Importez le widget BottomNavigation
+import 'button_nav.dart'; // Import du widget BottomNavigation
 import 'package:jobaventure/Service/auth_service.dart'; // Import du AuthService
 
 class HomePage extends StatefulWidget {
@@ -18,10 +21,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _searchController = TextEditingController(); // Contrôleur de texte
   late Future<List<Metier>> futureMetiers; // Future pour récupérer les métiers
   final MetierService metierService = MetierService(AuthService());
-  
-
-
-
+    final QuizService quizService = QuizService(AuthService());
   
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     switch (index) {
       case 0:
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => JobAdventureHomePage(),
+          builder: (context) => HomePage(),
         ));
         break;
       case 1:
@@ -47,7 +47,14 @@ class _HomePageState extends State<HomePage> {
         ));
         break;
       case 2:
-        Navigator.pushNamed(context, '/profile'); // Remplacez cela par votre écran de profil
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProfilePage(),
+        ));
+        break;
+      case 3:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => QuizParMetierPage(quizService: quizService,),
+        ));
         break;
     }
   }
@@ -65,50 +72,51 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Conteneur avec fond bleu contenant le logo et la barre de recherche
-              Container(
-                color: Colors.blue, // Couleur de fond bleu
-                padding: const EdgeInsets.symmetric(vertical: 16.0), // Espacement vertical
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Espacement entre les éléments
-                  children: [
-                    // Logo
-                    Image.asset(
-                      'images/logo.png', // Remplacez ceci par le chemin de votre logo
-                      height: 50, // Ajustez la hauteur selon vos besoins
-                    ),
-                    // Icône de recherche
-                    IconButton(
-                      icon: Icon(
-                        _isSearching ? Icons.close : Icons.search, // Icône selon l'état
-                        color: Colors.white,
-                      ),
-                      onPressed: _toggleSearch, // Bascule l'état de recherche
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section du haut avec le fond en dégradé
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [ Color(0xFFEDEDFF),  Color(0xFFEDEDFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-              // Affichage conditionnel de la barre de recherche
-              if (_isSearching)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0), // Espacement supérieur
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Rechercher un métier',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.search),
-                      fillColor: Colors.white, // Couleur de fond de la barre de recherche
-                      filled: true, // Remplir le fond
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                 Image.asset('assets/images/logo.png', width: 200),
+
+                  IconButton(
+                    icon: Icon(
+                      _isSearching ? Icons.close : Icons.search,
+                      color: Colors.white,
                     ),
+                    onPressed: _toggleSearch,
+                  ),
+                ],
+              ),
+            ),
+
+            // Afficher la barre de recherche si nécessaire
+            if (_isSearching)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Rechercher un métier',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.search),
+                    fillColor: Colors.white,
+                    filled: true,
                   ),
                 ),
+              ),
               SizedBox(height: 20), // Espace entre le conteneur et le texte
                Row(
                 crossAxisAlignment: CrossAxisAlignment.start, // Aligne les enfants au début
@@ -143,29 +151,27 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           ClipRRect(
                             child: Image.asset(
-                              'images/ac.png', // Remplacez par le chemin de l'image réelle
-                              height: 150,
-                              width: 150,
+                              'assets/images/ac.png', // Remplacez par le chemin de l'image réelle
+                              height: 100,
+                              width: 100,
                               fit: BoxFit.cover,
                             ),
                           ),
-                         // SizedBox(width: 10),
                           ClipRRect(
                             child: Image.asset(
-                              'images/ab.png', // Remplacez par le chemin de l'image réelle
-                              height: 150,
-                              width: 150,
+                              'assets/images/ab.png', // Remplacez par le chemin de l'image réelle
+                              height: 100,
+                              width: 100,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ],
                       ),
-                      //SizedBox(height: 10), // Espace entre les lignes d'images
                       ClipRRect(
                         child: Image.asset(
-                          'images/ac.png', // Remplacez par le chemin de l'image réelle
-                          height: 150,
-                          width: 150,
+                          'assets/images/ac.png', // Remplacez par le chemin de l'image réelle
+                          height: 100,
+                          width: 100,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -190,7 +196,6 @@ class _HomePageState extends State<HomePage> {
                        Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => CategoriePage(),
         ));
-                      
                     },
                     child: Text("Voir tout"),
                   ),
@@ -245,78 +250,62 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-
-             
               SizedBox(height: 20), 
-              
                Center(
-  child: Text(
-    "Découvre ton futur métier !!",
-    style: TextStyle(
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
+                child: Text(
+                  "Découvre ton futur métier !!",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
 // Espace entre le bouton et le bas de l'écran
             Row(
-  crossAxisAlignment: CrossAxisAlignment.start, // Aligne les enfants au début
-  children: [
-    // Affichage des images en haut et en bas
-    Column(
-      mainAxisAlignment: MainAxisAlignment.start, // Aligne les images en haut
-      crossAxisAlignment: CrossAxisAlignment.center, // Centre les images
-      children: [
-       
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Centre les images
-          children: [
-            // Vous pouvez ajuster les marges selon vos besoins
-            Image.asset(
-              'images/DDD.png', 
-              width: 150, // Largeur augmentée
-              height: 150, // Hauteur augmentée
-              fit: BoxFit.cover, // Pour ajuster l'image dans le conteneur
-            ),
+              crossAxisAlignment: CrossAxisAlignment.start, // Aligne les enfants au début
+              children: [
+                // Affichage des images en haut et en bas
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start, // Aligne les images en haut
+                  crossAxisAlignment: CrossAxisAlignment.center, // Centre les images
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Centre les images
+                      children: [
+                        // Vous pouvez ajuster les marges selon vos besoins
+                        Image.asset(
+                          'assets/images/q.png', 
+                          width: 150, // Largeur augmentée
+                          height: 200, // Hauteur augmentée
+                          fit: BoxFit.cover, // Pour ajuster l'image dans le conteneur
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(width: 0), // Espace entre l'image et le texte
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 0),
+                      Text(
+                        "Avec Job aventure, tu as la chance d'explorer des carrières passionnantes et de comprendre ce que signifie vraiment chaque métier. Ensemble, faisons de ton rêve une réalité !",
+                      ),
+                      // Espace entre les cartes et le bouton
+                      ElevatedButton(
+                        onPressed: () {
+                          // Action pour le bouton
+                        },
+                        child: Text('Explorez les Métiers'),
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            )
           ],
-        ),
-      ],
-    ),
-    SizedBox(width: 16), // Espace entre l'image et le texte
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          
-          SizedBox(height: 8),
-          Text(
-            "Avec Job aventure, tu as la chance d'explorer des carrières passionnantes et de comprendre ce que signifie vraiment chaque métier. Ensemble, faisons de ton rêve une réalité !",
-          ),
-           // Espace entre les cartes et le bouton
-              ElevatedButton(
-                onPressed: () {
-                  //  Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => MetierCategoryPage(
-                         
-                         
-                  //       ),
-                  //     ),
-                  //   );
-                  // Action pour le bouton
-                },
-                child: Text('Explorez les Métiers'),
-              ),
-               SizedBox(height: 20),
-        ],
-      ),
-    ),
-  ],
-)
-
-            ],
-          ),
         ),
       ),
       bottomNavigationBar: BottomNavigation(
@@ -325,42 +314,65 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  // Méthode pour générer une couleur en fonction de la catégorie
+Color _getCategoryColor(String categoryName) {
+  switch (categoryName.toLowerCase()) {
+    case 'technologie':
+      return Colors.blueAccent; // Couleur pour la catégorie 'Technologie'
+    case 'santé':
+      return Colors.greenAccent; // Couleur pour la catégorie 'Santé'
+    case 'éducation':
+      return Colors.orangeAccent; // Couleur pour la catégorie 'Éducation'
+    case 'artisanat':
+      return Colors.purpleAccent; // Couleur pour la catégorie 'Artisanat'
+    case 'dessin':
+      return Colors.redAccent; // Couleur pour la catégorie 'Commerce'
+    default:
+      return Colors.grey; // Couleur par défaut
+  }
+}
 
   // Méthode pour créer une carte de catégorie
-  Widget _buildCategoryCard(String imagePath, String categoryName) {
-    return Card(
-      elevation: 4,
-      child: Container(
-        width: 200, // Largeur ajustée pour les cartes de catégorie
-        height: 200, // Hauteur ajustée pour éviter le débordement
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            imagePath.isNotEmpty
+ Widget _buildCategoryCard(String imagePath, String categoryName) {
+  Color categoryColor = _getCategoryColor(categoryName); // Obtenir la couleur en fonction de la catégorie
+
+  return Card(
+    elevation: 4,
+    child: Container(
+      width: 200, // Largeur du conteneur ajustée
+      height: 200, // Hauteur ajustée pour l'image et le texte
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch, // Permet à l'image de prendre toute la largeur
+        children: [
+          // L'image prend toute la largeur du conteneur
+          Expanded(
+            child: imagePath.isNotEmpty
                 ? Image.network(
                     imagePath,
-                    height: 100, // Hauteur ajustée pour l'image
-                    fit: BoxFit.cover,
+                    fit: BoxFit.cover, // L'image couvre toute la surface disponible
                   )
                 : Container(
-                    height: 100,
                     color: Colors.grey,
                     child: Center(child: Text('Pas d\'image')),
                   ),
-            SizedBox(height: 10),
-            Text(
+          ),
+          // Section en bas avec une couleur pour afficher le nom de la catégorie
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            color: categoryColor, // Couleur dynamique basée sur la catégorie
+            child: Text(
               categoryName,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white, // Texte en blanc pour contraster avec le fond
               ),
-              textAlign: TextAlign.center, // Centrer le texte
+              textAlign: TextAlign.center, // Centre le texte
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

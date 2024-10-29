@@ -82,195 +82,220 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
       appBar: AppBar(
         title: Text('Inscription'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back), // Icône de retour
           onPressed: () => Navigator.pop(context), // Retour à l'écran précédent
         ),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return FadeTransition(
-                    opacity: _animationController.drive(CurveTween(curve: Curves.easeIn)),
-                    child: Image.asset('images/logo.png', height: 200),
-                  );
-                },
+              SizedBox(height: 40),
+              // Illustration au-dessus du formulaire
+              Center(
+                child: Image.asset('assets/images/logo.png', height: 180),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 20),
 
-              Text(
-                'Inscrivez-vous',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              // Conteneur de formulaire avec ombre
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(0xFF036A94), // Couleur de fond
+                  borderRadius: BorderRadius.circular(30), // Bordure arrondie
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // décalage de l'ombre
+                    ),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 10),
-
-              Text(
-                'Remplissez les champs ci-dessous pour créer votre compte.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              SizedBox(height: 30),
-
-              Form(
-                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Nom',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
+                    Text(
+                      'Inscrivez-vous',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre nom';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) => _nom = value!,
+                      textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10),
-
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty || !RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                          return 'Veuillez entrer une adresse email valide';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) => _email = value!,
-                    ),
-                    SizedBox(height: 10),
-
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Mot de passe',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                      ),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty || value.length < 6) {
-                          return 'Le mot de passe doit comporter au moins 6 caractères';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) => _password = value!,
-                    ),
-                    SizedBox(height: 10),
-
-                    DropdownButtonFormField<String>(
-                      value: _role,
-                      items: <String>['Enfant', 'Parent'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _role = newValue!;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Rôle',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
+                    Text(
+                      'Remplissez les champs ci-dessous pour créer votre compte.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black54,
                       ),
                     ),
-                    SizedBox(height: 10),
-
-                    if (_role == 'Enfant')
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Âge',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre âge';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _age = int.tryParse(value!),
-                      ),
-                    if (_role == 'Parent')
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Profession',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre profession';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _profession = value!,
-                      ),
                     SizedBox(height: 20),
 
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _signup,
-                      child: _isLoading
-                          ? SpinKitCircle(color: Colors.white, size: 24)
-                          : Text('S\'inscrire', style: TextStyle(fontSize: 18)),
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Nom',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre nom';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) => _nom = value!,
+                          ),
+                          SizedBox(height: 10),
+
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty || !RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                                return 'Veuillez entrer une adresse email valide';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) => _email = value!,
+                          ),
+                          SizedBox(height: 10),
+
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Mot de passe',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty || value.length < 6) {
+                                return 'Le mot de passe doit comporter au moins 6 caractères';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) => _password = value!,
+                          ),
+                          SizedBox(height: 10),
+
+                          DropdownButtonFormField<String>(
+                            value: _role,
+                            items: <String>['Enfant', 'Parent'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _role = newValue!;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Rôle',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+
+                          if (_role == 'Enfant')
+                            TextFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Âge',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Veuillez entrer votre âge';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) => _age = int.tryParse(value!),
+                            ),
+                          if (_role == 'Parent')
+                            TextFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Profession',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Veuillez entrer votre profession';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) => _profession = value!,
+                            ),
+                          SizedBox(height: 20),
+
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _signup,
+                            child: _isLoading
+                                ? SpinKitCircle(color: Colors.white, size: 24)
+                                : Text('S\'inscrire', style: TextStyle(fontSize: 18)),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.white, // Couleur du bouton
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+
+                          if (_message != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                _message!,
+                                style: TextStyle(
+                                  color: _message!.startsWith('Erreur') ? Colors.red : Colors.green,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-
-                    if (_message != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Text(
-                          _message!,
-                          style: TextStyle(
-                            color: _message!.startsWith('Erreur') ? Colors.red : Colors.green,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),

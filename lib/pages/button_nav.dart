@@ -1,13 +1,15 @@
-// bottom_navigation.dart
-
 import 'package:flutter/material.dart';
 import 'package:jobaventure/pages/categorie.dart';
 
 class BottomNavigation extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final ValueChanged<int> onTap; // Utiliser ValueChanged pour la fonction onTap
 
-  const BottomNavigation({Key? key, required this.currentIndex, required this.onTap}) : super(key: key);
+  const BottomNavigation({
+    Key? key,
+    required this.currentIndex,
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +23,22 @@ class BottomNavigation extends StatelessWidget {
           icon: Icon(Icons.category),
           label: 'Catégories',
         ),
+     
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profil',
         ),
+           BottomNavigationBarItem(
+          icon: Icon(Icons.quiz),
+          label: 'Quiz',
+        ),
       ],
       currentIndex: currentIndex,
       onTap: onTap,
+      selectedItemColor: Colors.blue, // Couleur pour l'élément sélectionné
+      unselectedItemColor: Colors.grey, // Couleur pour les éléments non sélectionnés
+      showUnselectedLabels: true, // Afficher les labels non sélectionnés
+      showSelectedLabels: true, // Afficher les labels sélectionnés
     );
   }
 }

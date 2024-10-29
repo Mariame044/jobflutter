@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:jobaventure/Service/interview.dart';
 import 'package:jobaventure/Service/jeu.dart';
 import 'package:jobaventure/Service/video.dart';
 import 'package:jobaventure/models/categorie.dart';
-import 'package:jobaventure/models/interview.dart';
 import 'package:jobaventure/models/jeu.dart';
 import 'package:jobaventure/models/video.dart';
-import 'package:jobaventure/pages/detailvideo.dart';
-import 'package:jobaventure/pages/interviewparmetier.dart';
+import 'package:jobaventure/pages/detailinterview.dart';
 import 'package:jobaventure/pages/jeuparmetier.dart';
-// N'oubliez pas d'importer la page de détails de la vidéo
+import 'package:jobaventure/pages/videoparmetier.dart';
 
-class GroupedVideosScreen extends StatelessWidget {
-  final List<Video>? videos; // Liste de vidéos pour un métier
+import '../Service/interview.dart';
+import '../models/interview.dart';
+
+
+class InterviewsByMetierPage extends StatelessWidget {
+  final List<Interview>? interviews; // Liste de vidéos pour un métier
   final Metier metier; // Instance du métier
   final InterviewService interviewService; // Instance du service interview
   final VideoService videoService; // Instance du service vidéo
   final JeuderoleService jeuderoleService;
 
 
-  const GroupedVideosScreen({Key? key, this.videos, required this.jeuderoleService, required this.interviewService, required this.videoService, required this.metier}) : super(key: key);
+  const InterviewsByMetierPage({Key? key, this.interviews, required this.jeuderoleService, required this.interviewService, required this.videoService, required this.metier}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -83,17 +84,17 @@ class GroupedVideosScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: videos == null || videos!.isEmpty
+            child: interviews == null || interviews!.isEmpty
                 ? Center(
                     child: Text(
-                      'Aucune vidéo disponible pour ce métier',
+                      'Aucune interview disponible pour ce métier',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   )
                 : ListView.builder(
-                    itemCount: videos!.length,
+                    itemCount: interviews!.length,
                     itemBuilder: (context, index) {
-                      Video video = videos![index];
+                      Interview interview = interviews![index];
                       return Card(
                         margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Marge autour de chaque carte
                         elevation: 4.0, // Ajout d'une ombre
@@ -108,9 +109,10 @@ class GroupedVideosScreen extends StatelessWidget {
                               SizedBox(height: 8.0), // Espacement entre le titre et la description
                               // Description de la vidéo
                               Text(
-                                video.description ?? 'Aucune description',
+                                interview.description ?? 'Aucune description',
                                 style: TextStyle(fontSize: 14, color: Colors.black87),
                               ),
+                               
                               SizedBox(height: 12.0), // Espacement sous la description
                               // Ajouter un bouton ou un lien pour voir la vidéo
                               ElevatedButton.icon(
@@ -119,12 +121,12 @@ class GroupedVideosScreen extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => VideoDetailScreen(videoId: video.id, videoService: videoService,),
+                                      builder: (context) => InterviewDetailPage(interviewId: interview.id, interviewService: interviewService,),
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.play_arrow), // Icône de lecture
-                                label: Text('Voir la vidéo'),
+                                icon: Icon(Icons.record_voice_over), // Icône de lecture
+                                label: Text('Voir la interview'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orangeAccent, // Couleur du bouton
                                   shape: RoundedRectangleBorder(
@@ -167,10 +169,47 @@ class GroupedVideosScreen extends StatelessWidget {
     );
   }
 
-  
-  // Méthode pour gérer le bouton Vidéo
-  Future<void> _handleVideoButton(BuildContext context) async {
-   
+ 
+ Future<void> _handleVideoButton(BuildContext context) async {
+    try {
+      List<Video>? videos = await videoService.getVideosByMetierAndAge(metier.id);
+      if (videos != null && videos.isNotEmpty) {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                GroupedVideosScreen(
+                  videos: videos,
+                  jeuderoleService: jeuderoleService,
+                  interviewService: interviewService,
+                  videoService: videoService,
+                  metier: metier,
+                ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var begin = Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.easeInOut;
+
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Aucune vidéo disponible pour ce métier.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la récupération des vidéos: $e')),
+      );
+    }
   }
 
   Future<void> _handleJeuButton(BuildContext context) async {
@@ -216,31 +255,6 @@ class GroupedVideosScreen extends StatelessWidget {
   }
   // Méthode pour gérer le bouton Interviews
   Future<void> _handleInterviewButton(BuildContext context) async {
-    try {
-      List<Interview>? interviews = await interviewService.getFlattenedInterviews();
-      if (interviews != null && interviews.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InterviewsByMetierPage(
-
-            
-              jeuderoleService: jeuderoleService,
-                  interviewService: interviewService,
-                  videoService: videoService,
-                  metier: metier,
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aucune interview disponible pour ce métier.')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la récupération des interviews: $e')),
-      );
-    }
+   
   }
 }

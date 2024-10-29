@@ -18,7 +18,7 @@ class MetierService {
     return {
       'Authorization': 'Bearer $token', // Ajouter le token aux en-têtes
       'Content-Type': 'application/json',
-         'Accept-Charset': 'utf-8' // Optionnel si votre API l'exige
+       
     };
   }
 
@@ -38,7 +38,20 @@ class MetierService {
       throw Exception('Failed to load metiers: ${response.statusCode} ${response.body}');
     }
   }
+   // Méthode pour incrémenter la vue d'un métier
+  Future<void> incrementerVueMetier(int metierId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/metiers/$metierId'),
+      headers: await getHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to increment view for metier $metierId: ${response.statusCode} ${response.body}');
+    }
+  }
 }
+
+
 // Exemple d'affichage d'image à partir de l'URL obtenue
 class ImageFromUrl extends StatelessWidget {
   final String imageUrl;

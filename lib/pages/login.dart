@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jobaventure/pages/home.dart';
 import 'package:jobaventure/pages/incrisption.dart';
+import 'package:jobaventure/pages/parent.dart';
 import '../Service/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Importation de shared_preferences
 
@@ -12,8 +13,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  String message = '';
-  bool _isLoading = false; // Ajout d'un état de chargement
+  bool _isLoading = false;
+  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -21,10 +22,10 @@ class _LoginPageState extends State<LoginPage> {
     _checkLoginStatus(); // Vérification du statut de connexion
   }
 
-  // Vérifier si l'utilisateur est déjà connecté
   void _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token'); // Récupération du token stocké
+    String? role = prefs.getString('role'); // Vérification du rôle stocké
 
     if (token != null) {
       // Si un token existe, redirection vers la page d'accueil
@@ -35,59 +36,46 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Fonction pour gérer la connexion
   void login() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     AuthService apiService = AuthService();
 
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        message = 'Veuillez entrer votre email et votre mot de passe.';
-      });
-      return; // Sortir si les champs sont vides
-    }
-
     setState(() {
-      _isLoading = true; // Activer l'indicateur de chargement
-      message = ''; // Réinitialiser le message d'erreur
+      _isLoading = true;
     });
 
     try {
       final response = await apiService.login(email, password);
-      print(response); // Pour déboguer la réponse
-
       if (response['statusCode'] == 200) {
-        // Stocker le token si la connexion réussit
         String token = response['token'];
-
-        // Sauvegarder le token dans shared_preferences pour le stockage local
+        
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', token); // Stockage du token
+        await prefs.setString('auth_token', token);
 
-        // Récupération du rôle de l'utilisateur
         String role = response['role']['nom'];
-
-        // Redirection en fonction du rôle
-        if (role == "PARENT" || role == "Enfant") {
+       // Redirection en fonction du rôle de l'utilisateur
+        if (role == "Parent") {
+          // Si l'utilisateur est un parent, redirection vers EnfantSupervisionPage
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()), // Page pour les parents ou enfants
+            MaterialPageRoute(builder: (context) => EnfantSupervisionPage()),
+          );
+        } else if (role == "Enfant") {
+          // Si l'utilisateur est un enfant, redirection vers la page d'accueil (ou une autre page)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
           );
         }
       } else {
-        setState(() {
-          message = 'Échec de la connexion : ${response['message']}';
-        });
+        print('Login failed: ${response['message']}');
       }
     } catch (e) {
-      print('Erreur : $e'); // Pour le débogage
-      setState(() {
-        message = 'Erreur : ${e.toString()}'; // Message d'erreur plus général
-      });
+      print('Error: $e');
     } finally {
       setState(() {
-        _isLoading = false; // Désactiver l'indicateur de chargement
+        _isLoading = false;
       });
     }
   }
@@ -95,43 +83,146 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Page de Connexion'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: 'Mot de passe'),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isLoading ? null : login, // Désactiver le bouton pendant le chargement
-              child: _isLoading
-                  ? CircularProgressIndicator(color: Colors.white) // Indicateur de chargement
-                  : Text('Se connecter'),
-            ),
-            SizedBox(height: 20),
-            Text(message, style: TextStyle(color: Colors.red)),
-            SizedBox(height: 20),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignupScreen()), // Naviguer vers la page d'inscription
-                );
-              },
-              child: Text('Pas encore de compte ? Inscrivez-vous ici.'),
-            ),
-          ],
+      backgroundColor: Colors.white, // Fond blanc
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 40),
+              // Illustration au-dessus du formulaire
+              Center(
+                child: Image.asset(
+                  'assets/images/logo.png', // Remplacez par votre illustration
+                  height: 180,
+                ),
+              ),
+              SizedBox(height: 20),
+              // Conteneur de formulaire avec ombre
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(0xFF036A94), // Couleur de fond
+                  borderRadius: BorderRadius.circular(30), // Bordure arrondie
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // décalage de l'ombre
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Prêt à entrer dans l aventure ?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Connecte-toi !',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    // Champ de saisie Email
+                    TextField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.email_outlined, color: Colors.black54),
+                        labelText: 'Email',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    // Champ de saisie Password
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.lock_outline, color: Colors.black54),
+                        labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    SizedBox(height: 20),
+                    // Bouton de connexion
+                    Center(
+                      child: SizedBox(
+                        width: 200, // Largeur du bouton
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : login,
+                          child: _isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  'Connexion',
+                                  style: TextStyle(fontSize: 18, color: Colors.blue), // Couleur du texte en bleu
+                                ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white, // Couleur de fond du bouton
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Color(0xFF036A94)), // Optionnel : ajouter une bordure
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    // Lien vers l'inscription
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignupScreen()),
+                          );
+                        },
+                        child: RichText(
+                          text: TextSpan(
+                            text: "je suis un nouvel utilisateur.  ",
+                            style: TextStyle(color: Colors.white),
+                            children: [
+                              TextSpan(
+                                text: 'Inscris toi?',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

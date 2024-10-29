@@ -87,7 +87,8 @@ class _CoverPageState extends State<CoverPage> with SingleTickerProviderStateMix
                   AnimatedContainer(
                     duration: Duration(seconds: 10),
                     curve: Curves.bounceIn,
-                    child: Image.asset('images/logo.png', width: 200), // Remplacez par votre logo
+                   child: Image.asset('assets/images/logo.png', width: 200), // Remplacez par votre logo
+
                   ),
                   SizedBox(height: 20),
                   Text(

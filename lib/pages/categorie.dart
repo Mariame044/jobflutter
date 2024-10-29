@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import '../Service/metier_service.dart'; // Assurez-vous que le chemin d'importation est correct
-import '../models/categorie.dart'; // Importez le modèle Categorie
-import 'package:jobaventure/Service/auth_service.dart'; // Import de AuthService
-import 'detailsmetier.dart'; // Je naviguez vers MetierCategoryPage
-import 'Metierparcategorie.dart'; // Nouvelle page pour afficher les métiers par catégorie
-import '../Service/video.dart'; // Import du service vidéo
+import 'package:jobaventure/Service/jeu.dart';
+import 'package:jobaventure/Service/quiz.dart';
+
+import 'package:jobaventure/pages/button_nav.dart';
+import 'package:jobaventure/pages/home.dart';
+import 'package:jobaventure/pages/profile.dart';
+import 'package:jobaventure/pages/quizparmetier.dart';
+import '../Service/metier_service.dart';
+import '../models/categorie.dart'; 
+import 'package:jobaventure/Service/auth_service.dart'; 
+
+import 'Metierparcategorie.dart'; 
+import '../Service/video.dart'; 
+import 'package:jobaventure/Service/interview.dart';
 
 class CategoriePage extends StatefulWidget {
   @override
@@ -13,19 +21,69 @@ class CategoriePage extends StatefulWidget {
 
 class _CategoriePageState extends State<CategoriePage> {
   late Future<List<Metier>> futureMetiers;
-  final AuthService authService = AuthService(); // Instance d'AuthService
-  final MetierService metierService; // Déclaration du service Métier
-  late final VideoService videoService; // Déclaration du service Vidéo
-
+  int _currentIndex = 0;
+  final AuthService authService = AuthService(); 
+  final MetierService metierService;
+  late final VideoService videoService;
+  late final JeuderoleService jeuderoleService;
+  late final InterviewService interviewService;
+  final QuizService quizService = QuizService(AuthService());
+  
   _CategoriePageState() : metierService = MetierService(AuthService()) {
-    videoService = VideoService(authService); // Initialisation de VideoService avec AuthService
+    videoService = VideoService(authService);
+    interviewService = InterviewService(authService); 
+    jeuderoleService = JeuderoleService(authService); 
   }
 
   @override
   void initState() {
     super.initState();
-    // Initialiser le futur pour charger les métiers
-    futureMetiers = metierService.getAllMetiers(); // Assurez-vous que le nom de la méthode est correct
+    futureMetiers = metierService.getAllMetiers(); 
+  }
+
+  // Méthode pour obtenir la couleur de la catégorie
+  Color _getCategoryColor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'technologie':
+        return Colors.blueAccent;
+      case 'santé':
+        return Colors.greenAccent;
+      case 'éducation':
+        return Colors.orangeAccent;
+      case 'artisanat':
+        return Colors.purpleAccent;
+      case 'dessin':
+        return Colors.redAccent;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _onTap(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ));
+        break;
+      case 1:
+       
+        break;
+      case 2:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProfilePage(),
+        ));
+      case 3:
+       Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => QuizParMetierPage(quizService: quizService,),
+        ));
+
+        break;
+    }
   }
 
   @override
@@ -37,53 +95,48 @@ class _CategoriePageState extends State<CategoriePage> {
       body: FutureBuilder<List<Metier>>(
         future: futureMetiers,
         builder: (context, snapshot) {
-          // Affichage d'un indicateur de chargement pendant que les données sont récupérées
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          }
-          // Gestion des erreurs lors de la récupération des données
-          else if (snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text('Erreur: ${snapshot.error}'));
-          }
-          // Si les données sont récupérées mais qu'aucun métier n'est trouvé
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('Aucun métier trouvé.'));
           }
 
-          // Récupérer la liste des métiers et les grouper par catégorie
           List<Metier> metiers = snapshot.data!;
           Map<String, List<Metier>> metiersByCategorie = {};
 
           for (var metier in metiers) {
-            String categoryName = metier.categorie?.nom ?? 'Non catégorisé'; // Accéder au nom de la catégorie
+            String categoryName = metier.categorie?.nom ?? 'Non catégorisé';
             metiersByCategorie.putIfAbsent(categoryName, () => []).add(metier);
           }
 
-          // Affichage des catégories dans une grille
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Nombre de cartes par rangée
+                crossAxisCount: 2,
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
-                childAspectRatio: 1, // Ajustez le ratio pour l'apparence
+                childAspectRatio: 1,
               ),
               itemCount: metiersByCategorie.keys.length,
               itemBuilder: (context, index) {
                 String categoryName = metiersByCategorie.keys.elementAt(index);
                 List<Metier> metiersInCategory = metiersByCategorie[categoryName]!;
+                Color categoryColor = _getCategoryColor(categoryName);
 
                 return GestureDetector(
                   onTap: () {
-                    // Naviguer vers la nouvelle page pour afficher les métiers de la catégorie
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MetierCategoryPage(
                           categoryName: categoryName,
                           metiers: metiersInCategory,
-                          videoService: videoService, // Passez l'instance de videoService ici
+                          interviewService: interviewService,
+                          videoService: videoService,
+                          jeuderoleService: jeuderoleService, metierService: metierService,
                         ),
                       ),
                     );
@@ -91,7 +144,7 @@ class _CategoriePageState extends State<CategoriePage> {
                   child: Card(
                     margin: EdgeInsets.all(8.0),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Expanded(
                           child: metiersInCategory.isNotEmpty && metiersInCategory[0].imageUrl != null
@@ -99,7 +152,6 @@ class _CategoriePageState extends State<CategoriePage> {
                                   'http://localhost:8080/' + metiersInCategory[0].imageUrl!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    // Gestion de l'erreur d'image
                                     return Container(
                                       color: Colors.grey,
                                       child: Center(child: Text('Erreur chargement image')),
@@ -111,11 +163,15 @@ class _CategoriePageState extends State<CategoriePage> {
                                   child: Center(child: Text('Aucune image disponible')),
                                 ),
                         ),
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.all(8.0),
+                          color: categoryColor, // Utiliser la couleur dynamique
                           child: Text(
                             categoryName,
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -127,6 +183,10 @@ class _CategoriePageState extends State<CategoriePage> {
             ),
           );
         },
+      ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onTap: _onTap,
       ),
     );
   }
