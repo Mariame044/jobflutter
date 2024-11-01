@@ -22,7 +22,7 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
   Set<int> answeredQuestions = {}; // Pour suivre les questions déjà répondues
   final AudioPlayer audioPlayer = AudioPlayer(); // Initialize AudioPlayer
 
-   @override
+  @override
   void dispose() {
     audioPlayer.dispose(); // Dispose of the audio player when the widget is removed
     super.dispose();
@@ -38,7 +38,10 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Détails du Jeu')),
+      appBar: AppBar(
+        title: Text('Détails du Jeu'),
+        backgroundColor: Color(0xFF6200EE), // Couleur de l'appbar
+      ),
       body: FutureBuilder<Jeuderole>(
         future: futureJeu,
         builder: (context, jeuSnapshot) {
@@ -52,108 +55,106 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
 
           final jeu = jeuSnapshot.data!;
 
-          return Column(
-            children: [
-              Image.network(
-                'http://localhost:8080/${jeu.imageUrl}',
-                height: 200,
-                fit: BoxFit.cover,
-                
-              ),
-             
-              Text(
-                jeu.nom,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-               SizedBox(height: 10),
-            
-             
-            // Text(
-            //   'Score de l\'enfant: $score', // Afficher le score actuel de l'enfant
-            //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
-            // ),
-              SizedBox(height: 10),
-              FutureBuilder<List<Question>>(
-                future: futureQuestions,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Erreur: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('Aucune question disponible.'));
-                  }
-
-                  final questions = snapshot.data!;
-
-                  // Vérifiez si l'index est dans la plage
-                  if (currentQuestionIndex >= questions.length) {
-                    return Center(child: Text('Toutes les questions ont été traitées.'));
-                  }
-
-                  final currentQuestion = questions[currentQuestionIndex];
-
-                  return Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              currentQuestion.texte ?? 'Question non disponible',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: currentQuestion.reponse?.reponsepossible.length ?? 0,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(currentQuestion.reponse!.reponsepossible[index]),
-                               
-                                leading: Checkbox(
-                                  value: selectedAnswers[currentQuestion.id] == currentQuestion.reponse!.reponsepossible[index],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedAnswers[currentQuestion.id!] = value! ? currentQuestion.reponse!.reponsepossible[index] : null;
-                                    });
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-
-                          //       leading: Radio<String?>( // Champ radio pour chaque réponse
-                          //         value: currentQuestion.reponse!.reponsepossible[index],
-                          //         groupValue: selectedAnswers[currentQuestion.id],
-                          //         onChanged: (value) {
-                          //           setState(() {
-                          //             selectedAnswers[currentQuestion.id!] = value; // Stocker la réponse sélectionnée
-                          //           });
-                          //         },
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              // Vérifiez si la réponse a été sélectionnée
-                              if (selectedAnswers[currentQuestion.id!] == null) {
-                                _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
-                                return; // Ne pas continuer si aucune réponse n'est sélectionnée
-                              }
-                              await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
-                            },
-                            child: Text(currentQuestionIndex < questions.length - 1 ? 'Suivant' : 'Terminer'),
-                          ),
-                        ],
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                Card(
+                  elevation: 4, // Élévation de la carte pour un effet de profondeur
+                  child: Column(
+                    children: [
+                      Image.network(
+                        'http://localhost:8080/${jeu.imageUrl}',
+                        height: 200,
+                        fit: BoxFit.cover,
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          jeu.nom,
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blueGrey[800]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                FutureBuilder<List<Question>>(
+                  future: futureQuestions,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Erreur: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('Aucune question disponible.'));
+                    }
+
+                    final questions = snapshot.data!;
+
+                    // Vérifiez si l'index est dans la plage
+                    if (currentQuestionIndex >= questions.length) {
+                      return Center(child: Text('Toutes les questions ont été traitées.'));
+                    }
+
+                    final currentQuestion = questions[currentQuestionIndex];
+
+                    return Card(
+                      elevation: 4,
+                      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              currentQuestion.texte ?? 'Question non disponible',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(height: 10),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: currentQuestion.reponse?.reponsepossible.length ?? 0,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(currentQuestion.reponse!.reponsepossible[index]),
+                                  leading: Checkbox(
+                                    value: selectedAnswers[currentQuestion.id] == currentQuestion.reponse!.reponsepossible[index],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedAnswers[currentQuestion.id!] = value! ? currentQuestion.reponse!.reponsepossible[index] : null;
+                                      });
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6200EE), // Couleur du bouton
+                                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0), // Padding autour du texte
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0), // Coins arrondis
+                                ),
+                              ),
+                              onPressed: () async {
+                                // Vérifiez si la réponse a été sélectionnée
+                                if (selectedAnswers[currentQuestion.id!] == null) {
+                                  _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
+                                  return; // Ne pas continuer si aucune réponse n'est sélectionnée
+                                }
+                                await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
+                              },
+                              child: Text(currentQuestionIndex < questions.length - 1 ? 'Suivant' : 'Terminer', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -164,11 +165,7 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
     try {
       // Obtenez la réponse donnée par l'utilisateur
       String reponseDonnee = selectedAnswers[questions[questionIndex].id!] ?? '';
-      String? reponseCorrecte = questions[questionIndex].reponse!.correct;  // Obtenez la réponse correcte
-       // Vérifiez si la question a déjà été répondue
-       
- 
-   
+      String? reponseCorrecte = questions[questionIndex].reponse!.correct; // Obtenez la réponse correcte
 
       // Vérifiez si la réponse donnée est correcte
       Map<String, dynamic> result = await widget.jeuderoleService.verifierReponse(widget.jeuId, questions[questionIndex].id!, reponseDonnee);
@@ -186,16 +183,11 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
         // Si la réponse est incorrecte, afficher un message et ne pas changer la question
         _afficherDialog('Réponse incorrecte', 'Votre réponse est incorrecte, veuillez essayer à nouveau.');
       }
-     
+
       // Si toutes les questions sont répondues, affichez le score
       if (currentQuestionIndex >= questions.length) {
         await calculerScore(questions);
       }
-     if (answeredQuestions.contains(questions[questionIndex].id)) {
-     
-      _afficherDialog('Erreur', 'Vous avez déjà répondu à cette question.');
-      return; // Ne pas continuer si la question a déjà été répondue
-    }
 
     } catch (error) {
       _afficherDialog('Erreur', 'Une erreur est survenue : $error');

@@ -117,14 +117,19 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Espace entre le conteneur et le texte
-               Row(
+              SizedBox(height: 20), 
+              // Espace entre le conteneur et le texte
+              Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+               child:Row(
                 crossAxisAlignment: CrossAxisAlignment.start, // Aligne les enfants au début
                 children: [
                   Expanded(
                     child: Column(
+                      
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                         
                         Text(
                           "Salut, Explorateur!",
                           style: TextStyle(
@@ -179,9 +184,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+              ),
               SizedBox(height: 20),
                // Section des catégories
-              Row(
+              Padding(
+               padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child:Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -201,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ), // Espace entre les images et les catégories
-
+              ),
               // FutureBuilder pour afficher les catégories dynamiques
               FutureBuilder<List<Metier>>(
                 future: futureMetiers,

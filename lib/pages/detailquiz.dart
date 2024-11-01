@@ -15,11 +15,14 @@ class DetailQuizPage extends StatefulWidget {
 
 class _DetailQuizPageState extends State<DetailQuizPage> {
   late Future<List<Question>> futureQuestions;
-  late Future<Quiz> futureQuiz; // Renamed to match the model
+  late Future<Quiz> futureQuiz;
   Map<int, String?> selectedAnswers = {};
   int currentQuestionIndex = 0;
   int score = 0;
-  Set<int> answeredQuestions = {}; // To track answered questions
+  Set<int> answeredQuestions = {};
+  String messageFeedback = '';
+  Color couleurFeedback = Colors.transparent;
+  bool afficherReponseCorrecte = false;
 
   @override
   void initState() {
@@ -46,23 +49,16 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
           final quiz = quizSnapshot.data!;
 
           return Column(
+            mainAxisAlignment: MainAxisAlignment.center, // Centre les éléments verticalement
+            mainAxisSize: MainAxisSize.max, // Utilise toute la hauteur disponible
+            crossAxisAlignment: CrossAxisAlignment.center, // Centre les éléments horizontalement
             children: [
-             
               Text(
                 quiz.titre,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-               Text(
-                quiz.description,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              // Display the current score
-              Text(
-                'Score de l\'enfant: $score',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
-              ),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               FutureBuilder<List<Question>>(
                 future: futureQuestions,
                 builder: (context, snapshot) {
@@ -76,49 +72,93 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
 
                   final questions = snapshot.data!;
 
-                  // Check if the index is within range
                   if (currentQuestionIndex >= questions.length) {
                     return Center(child: Text('Toutes les questions ont été traitées.'));
                   }
 
                   final currentQuestion = questions[currentQuestionIndex];
+                  final reponseCorrecte = currentQuestion.reponse?.correct;
 
                   return Expanded(
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.cyan[100],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: Text(
                               currentQuestion.texte ?? 'Question non disponible',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                             ),
                           ),
+                          SizedBox(height: 20),
                           ListView.builder(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
                             itemCount: currentQuestion.reponse?.reponsepossible.length ?? 0,
                             itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(currentQuestion.reponse!.reponsepossible[index]),
-                                leading: Radio<String?>( // Champ radio pour chaque réponse
-                                  value: currentQuestion.reponse!.reponsepossible[index],
-                                  groupValue: selectedAnswers[currentQuestion.id],
-                                  onChanged: (value) {
+                              final option = currentQuestion.reponse!.reponsepossible[index];
+                              final estSelectionnee = selectedAnswers[currentQuestion.id] == option;
+                              final estCorrecte = option == reponseCorrecte;
+
+                              Color couleurOption = Colors.grey[300]!;
+                              if (afficherReponseCorrecte) {
+                                couleurOption = estCorrecte
+                                    ? Colors.green
+                                    : (estSelectionnee ? Colors.red : Colors.grey[300]!);
+                              } else if (estSelectionnee) {
+                                couleurOption = Colors.blue;
+                              }
+
+                              return GestureDetector(
+                                onTap: () {
+                                  if (!afficherReponseCorrecte) {
                                     setState(() {
-                                      selectedAnswers[currentQuestion.id!] = value; // Stocker la réponse sélectionnée
+                                      selectedAnswers[currentQuestion.id!] = option;
+                                      messageFeedback = '';
+                                      couleurFeedback = Colors.transparent;
                                     });
-                                  },
+                                  }
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: couleurOption,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               );
                             },
                           ),
+                          if (messageFeedback.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                messageFeedback,
+                                style: TextStyle(color: couleurFeedback, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ElevatedButton(
                             onPressed: () async {
-                              // Vérifiez si la réponse a été sélectionnée
                               if (selectedAnswers[currentQuestion.id!] == null) {
                                 _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
-                                return; // Ne pas continuer si aucune réponse n'est sélectionnée
+                                return;
                               }
                               await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
                             },
@@ -139,49 +179,47 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
 
   Future<void> verifierReponseEtPasserSuivant(int questionIndex, List<Question> questions) async {
     try {
-      // Obtenez la réponse donnée par l'utilisateur
       String reponseDonnee = selectedAnswers[questions[questionIndex].id!] ?? '';
-      String? reponseCorrecte = questions[questionIndex].reponse!.correct;  // Obtenez la réponse correcte
-       // Vérifiez si la question a déjà été répondue
-       
- 
-   
+      String? reponseCorrecte = questions[questionIndex].reponse!.correct;
 
-      // Vérifiez si la réponse donnée est correcte
-      Map<String, dynamic> result = await widget.quizService.verifierReponse(widget.quizId, questions[questionIndex].id!, reponseDonnee);
-    
-      if (reponseDonnee == reponseCorrecte) {
-        score++; // Incrémentez le score si la réponse est correcte
-        answeredQuestions.add(questions[questionIndex].id!); // Marquez la question comme répondue
-        _afficherDialog('Réponse correcte', 'Bonne réponse ! Vous avez gagné un point.');
+      Map<String, dynamic> result = await widget.quizService.verifierReponse(
+        widget.quizId,
+        questions[questionIndex].id!,
+        reponseDonnee,
+      );
 
-        // Passez à la question suivante
-        setState(() {
+      setState(() {
+        if (reponseDonnee == reponseCorrecte) {
+          score++;
+          messageFeedback = 'Bonne réponse !';
+          couleurFeedback = Colors.green;
           currentQuestionIndex++;
-        });
-      } else {
-        // Si la réponse est incorrecte, afficher un message et ne pas changer la question
-        _afficherDialog('Réponse incorrecte', 'Votre réponse est incorrecte, veuillez essayer à nouveau.');
-      }
-     
-      // Si toutes les questions sont répondues, affichez le score
-      if (currentQuestionIndex >= questions.length) {
-        await calculerScore(questions);
-      }
-     if (answeredQuestions.contains(questions[questionIndex].id)) {
-     
-      _afficherDialog('Erreur', 'Vous avez déjà répondu à cette question.');
-      return; // Ne pas continuer si la question a déjà été répondue
-    }
+        } else {
+          messageFeedback = 'Mauvaise réponse.';
+          couleurFeedback = Colors.red;
+        }
 
+        afficherReponseCorrecte = true;
+
+        Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            afficherReponseCorrecte = false;
+            messageFeedback = '';
+            couleurFeedback = Colors.transparent;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex >= questions.length) {
+              calculerScore(questions);
+            }
+          });
+        });
+      });
     } catch (error) {
       _afficherDialog('Erreur', 'Une erreur est survenue : $error');
-      print(error); // Afficher l'erreur dans la console pour le débogage
     }
   }
 
   Future<void> calculerScore(List<Question> questions) async {
-    // Utilisez le score accumulé
     _afficherDialog('Score', 'Votre score est : $score');
   }
 
@@ -190,11 +228,11 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
+          title: Text(title, style: TextStyle(color: Colors.deepPurple)),
           content: Text(message),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: Text('OK', style: TextStyle(color: Colors.deepPurple)),
               onPressed: () {
                 Navigator.of(context).pop();
               },

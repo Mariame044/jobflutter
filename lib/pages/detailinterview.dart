@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:jobaventure/Service/interview.dart';
 import 'package:jobaventure/Service/video.dart';
+import 'package:jobaventure/pages/question.dart';
 import 'package:jobaventure/pages/videoplayer.dart'; // Assurez-vous d'importer correctement votre widget
 import '../models/interview.dart'; // Importer votre modèle d'interview
+// Assurez-vous d'importer la page pour poser une question
 
 class InterviewDetailPage extends StatelessWidget {
   final int interviewId;
- 
   final InterviewService interviewService; // Service pour récupérer les vidéos
 
   const InterviewDetailPage({
     Key? key,
-   
     required this.interviewId,
     required this.interviewService,
   }) : super(key: key);
@@ -71,6 +71,17 @@ class InterviewDetailPage extends StatelessWidget {
                     Text('Date de publication: ${interview.date ?? 'Pas de date disponible'}'),
                     const SizedBox(height: 8), // Espace entre les éléments
                     Text('Métier: ${interview.metier?.nom ?? 'Métier inconnu'}'), // Affichage du métier
+                    const SizedBox(height: 16), // Espace supplémentaire avant le bouton
+                    // Bouton pour poser une question
+                    _buildAnimatedButton(
+                      context: context,
+                      label: 'Poser une question',
+                      color: Colors.blue, // Couleur pour le bouton de question
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        await _handlePoserQuestionButton(context, interview.id); // Passer l'ID de l'interview
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -78,6 +89,43 @@ class InterviewDetailPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  // Méthode pour créer un bouton animé
+  Widget _buildAnimatedButton({
+    required BuildContext context,
+    required String label,
+    required Color color,
+    required Color textColor,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0), // Coins arrondis
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 16, color: textColor),
+      ),
+    );
+  }
+
+  // Méthode pour gérer le bouton "Poser une question"
+  Future<void> _handlePoserQuestionButton(BuildContext context, int interviewId) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PoserQuestionPage(
+          interviewId: interviewId,
+          interviewService: interviewService, // Passez le service d'interview
+        ),
+      ),
     );
   }
 }

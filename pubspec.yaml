@@ -23,6 +23,7 @@ dependencies:
   permission_handler: ^11.3.1 
   cupertino_icons: ^1.0.8
   audioplayers: ^6.1.0
+  url_launcher: ^6.3.1
 
  
 
@@ -40,4 +41,5 @@ flutter:
     - assets/images/DDD.png
     - assets/images/q.png
     - assets/images/d.png
+    - assets/images/Loading_icon.gif
  

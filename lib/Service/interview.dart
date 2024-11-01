@@ -1,6 +1,8 @@
 // interview_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:jobaventure/models/question1.dart';
+
 import '../models/interview.dart';
 import 'auth_service.dart';
 
@@ -28,6 +30,38 @@ class InterviewService {
       throw Exception('Échec du chargement de la vidéo');
     }
   }
+
+// Nouvelle méthode pour poser une question
+ Future<Question1> poserQuestion(Question1 questionRequest) async {
+  final headers = await getHeaders(); // Obtenir les en-têtes avec le token
+
+  // Inclure l'ID de l'interview et le contenu dans le corps de la requête
+  final body = {
+    'interviewId': questionRequest.interviewId,
+    'contenu': questionRequest.contenu,
+  };
+
+  // Log the body to debug JSON formatting issues
+  print('Request Body: ${json.encode(body)}'); // Debugging line
+
+  final response = await http.post(
+    Uri.parse('$baseUrl/poser'), // Remplacer par l'URL appropriée
+    headers: headers,
+    body: json.encode(body), // Convertir le corps en JSON
+  );
+
+  // Debug the response status and body for troubleshooting
+  print('Response Status: ${response.statusCode}');
+  print('Response Body: ${response.body}');
+
+  if (response.statusCode == 201) { // Si le statut HTTP est 201 Created
+    return Question1.fromJson(json.decode(response.body)); // Retourner l'objet Question créé
+  } else {
+    throw Exception('Échec de la pose de la question : ${response.body}'); // Gérer les erreurs avec message
+  }
+}
+
+
 
   // Méthode pour récupérer toutes les interviews
   Future<List<Interview>> getAllInterviews() async {
