@@ -19,10 +19,10 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
   Map<int, String?> selectedAnswers = {};
   int currentQuestionIndex = 0;
   int score = 0;
-  Set<int> answeredQuestions = {};
   String messageFeedback = '';
   Color couleurFeedback = Colors.transparent;
   bool afficherReponseCorrecte = false;
+  int questionsAnswered = 0; // Compteur pour le nombre de questions répondues
 
   @override
   void initState() {
@@ -34,7 +34,11 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Détails du Quiz')),
+      appBar: AppBar(
+        title: Text('Détails du Quiz', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: Colors.teal,
+      ),
       body: FutureBuilder<Quiz>(
         future: futureQuiz,
         builder: (context, quizSnapshot) {
@@ -48,129 +52,170 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
 
           final quiz = quizSnapshot.data!;
 
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Centre les éléments verticalement
-            mainAxisSize: MainAxisSize.max, // Utilise toute la hauteur disponible
-            crossAxisAlignment: CrossAxisAlignment.center, // Centre les éléments horizontalement
-            children: [
-              Text(
-                quiz.titre,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              FutureBuilder<List<Question>>(
-                future: futureQuestions,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Erreur: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('Aucune question disponible.'));
-                  }
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  quiz.titre,
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                FutureBuilder<List<Question>>(
+                  future: futureQuestions,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Erreur: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('Aucune question disponible.'));
+                    }
 
-                  final questions = snapshot.data!;
+                    final questions = snapshot.data!;
+                    final totalQuestions = questions.length;
 
-                  if (currentQuestionIndex >= questions.length) {
-                    return Center(child: Text('Toutes les questions ont été traitées.'));
-                  }
+                    if (currentQuestionIndex >= totalQuestions) {
+                      return Center(child: Text('Toutes les questions ont été traitées.'));
+                    }
 
-                  final currentQuestion = questions[currentQuestionIndex];
-                  final reponseCorrecte = currentQuestion.reponse?.correct;
+                    final currentQuestion = questions[currentQuestionIndex];
+                    final reponseCorrecte = currentQuestion.reponse?.correct;
 
-                  return Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
+                    return Expanded(
+                      child: Stack(
                         children: [
-                          Container(
-                            width: double.infinity,
-                            margin: EdgeInsets.symmetric(horizontal: 20),
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.cyan[100],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              currentQuestion.texte ?? 'Question non disponible',
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: currentQuestion.reponse?.reponsepossible.length ?? 0,
-                            itemBuilder: (context, index) {
-                              final option = currentQuestion.reponse!.reponsepossible[index];
-                              final estSelectionnee = selectedAnswers[currentQuestion.id] == option;
-                              final estCorrecte = option == reponseCorrecte;
-
-                              Color couleurOption = Colors.grey[300]!;
-                              if (afficherReponseCorrecte) {
-                                couleurOption = estCorrecte
-                                    ? Colors.green
-                                    : (estSelectionnee ? Colors.red : Colors.grey[300]!);
-                              } else if (estSelectionnee) {
-                                couleurOption = Colors.blue;
-                              }
-
-                              return GestureDetector(
-                                onTap: () {
-                                  if (!afficherReponseCorrecte) {
-                                    setState(() {
-                                      selectedAnswers[currentQuestion.id!] = option;
-                                      messageFeedback = '';
-                                      couleurFeedback = Colors.transparent;
-                                    });
-                                  }
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                                  padding: EdgeInsets.all(12),
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.symmetric(vertical: 10),
+                                  padding: EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: couleurOption,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      option,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
+                                    color: Colors.teal[100],
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(2, 2),
+                                        blurRadius: 8,
                                       ),
-                                    ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    currentQuestion.texte ?? 'Question non disponible',
+                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                          if (messageFeedback.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                messageFeedback,
-                                style: TextStyle(color: couleurFeedback, fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
+                                SizedBox(height: 20),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: currentQuestion.reponse?.reponsepossible.length ?? 0,
+                                  itemBuilder: (context, index) {
+                                    final option = currentQuestion.reponse!.reponsepossible[index];
+                                    final estSelectionnee = selectedAnswers[currentQuestion.id] == option;
+                                    final estCorrecte = option == reponseCorrecte;
+
+                                    Color couleurOption = Colors.grey[300]!;
+                                    if (afficherReponseCorrecte) {
+                                      couleurOption = estCorrecte
+                                          ? Colors.green
+                                          : (estSelectionnee ? Colors.red : Colors.grey[300]!);
+                                    } else if (estSelectionnee) {
+                                      couleurOption = Colors.blueAccent;
+                                    }
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        if (!afficherReponseCorrecte) {
+                                          setState(() {
+                                            selectedAnswers[currentQuestion.id!] = option;
+                                            messageFeedback = '';
+                                            couleurFeedback = Colors.transparent;
+                                          });
+                                        }
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                                        padding: EdgeInsets.all(15),
+                                        decoration: BoxDecoration(
+                                          color: couleurOption,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              offset: Offset(1, 1),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            option,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                if (messageFeedback.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      messageFeedback,
+                                      style: TextStyle(color: couleurFeedback, fontSize: 18, fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    if (selectedAnswers[currentQuestion.id!] == null) {
+                                      _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
+                                      return;
+                                    }
+                                    await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
+                                  },
+                                  child: Text(
+                                    currentQuestionIndex < totalQuestions - 1 ? 'Suivant' : 'Terminer',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (selectedAnswers[currentQuestion.id!] == null) {
-                                _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
-                                return;
-                              }
-                              await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
-                            },
-                            child: Text(currentQuestionIndex < questions.length - 1 ? 'Suivant' : 'Terminer'),
+                          ),
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: Text(
+                              'Q${currentQuestionIndex + 1}/$totalQuestions',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                    );
+                  },
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -189,11 +234,13 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
       );
 
       setState(() {
+        // Incrémentez le compteur de questions répondues
+        questionsAnswered++;
+
         if (reponseDonnee == reponseCorrecte) {
           score++;
           messageFeedback = 'Bonne réponse !';
           couleurFeedback = Colors.green;
-          currentQuestionIndex++;
         } else {
           messageFeedback = 'Mauvaise réponse.';
           couleurFeedback = Colors.red;
@@ -220,6 +267,12 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
   }
 
   Future<void> calculerScore(List<Question> questions) async {
+    // Vérifiez si l'utilisateur a répondu à 8 questions ou plus
+    if (questionsAnswered >= 8) {
+      _afficherDialog('Félicitations !', 'Vous avez reçu un badge pour avoir répondu à au moins 8 questions.');
+    }
+
+    // Affichez le score final
     _afficherDialog('Score', 'Votre score est : $score');
   }
 

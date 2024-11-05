@@ -1,6 +1,6 @@
-import 'dart:typed_data'; // Pour manipuler les octets des images
+import 'dart:typed_data'; // For handling image bytes
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Utiliser image_picker pour sélectionner des images
+import 'package:image_picker/image_picker.dart'; // For picking images
 import '../models/RegisterUserDto.dart';
 import '../Service/profile.dart';
 
@@ -19,7 +19,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late String _fullName;
   late String _password;
   late String _confirmPassword;
-  Uint8List? _imageBytes; // Utiliser Uint8List pour stocker les octets de l'image
+  Uint8List? _imageBytes; // To store image bytes
 
   @override
   void initState() {
@@ -34,7 +34,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      // Lire les octets de l'image sélectionnée
       setState(() async {
         _imageBytes = await pickedFile.readAsBytes();
       });
@@ -44,13 +43,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _updateProfile() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Appelez le service avec les octets de l'image si disponibles
         await _profileService.updateUserProfile(
           widget.user.id,
           _fullName,
           _password,
           _confirmPassword,
-          image: _imageBytes, // Passez les octets à la méthode du service
+          image: _imageBytes,
         );
         Navigator.of(context).pop();
       } catch (e) {
@@ -63,36 +61,50 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Construire l'URL de l'image
+    // Constructing the image URL
     String imageUrl = widget.user.imageUrl != null && widget.user.imageUrl!.isNotEmpty
         ? 'http://localhost:8080/' + widget.user.imageUrl!
-        : ''; // Ne rien faire si aucune image n'est disponible
+        : '';
 
     return Scaffold(
-      appBar: AppBar(title: Text('Modifier le Profil')),
+      appBar: AppBar(
+        title: Text('Modifier le Profil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.teal,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
               GestureDetector(
                 onTap: _pickImage,
                 child: CircleAvatar(
-                  radius: 50,
+                  radius: 70,
                   backgroundColor: Colors.grey[300],
                   backgroundImage: _imageBytes != null
-                      ? MemoryImage(_imageBytes!) // Utiliser MemoryImage pour afficher l'image sélectionnée
-                      : imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null, // Afficher l'image de l'utilisateur ou rien
+                      ? MemoryImage(_imageBytes!)
+                      : imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                   child: _imageBytes == null && imageUrl.isEmpty
-                      ? Icon(Icons.person, size: 80, color: Colors.blue) // Icône par défaut si pas d'image
+                      ? Icon(Icons.person, size: 80, color: Colors.blue)
                       : null,
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 20),
               TextFormField(
                 initialValue: _fullName,
-                decoration: InputDecoration(labelText: 'Nom complet'),
+                decoration: InputDecoration(
+                  labelText: 'Nom complet',
+                  labelStyle: TextStyle(color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal, width: 2),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer votre nom';
@@ -101,13 +113,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 },
                 onChanged: (value) => _fullName = value,
               ),
+              SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nouveau mot de passe'),
+                decoration: InputDecoration(
+                  labelText: 'Nouveau mot de passe',
+                  labelStyle: TextStyle(color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal, width: 2),
+                  ),
+                ),
                 obscureText: true,
                 onChanged: (value) => _password = value,
               ),
+              SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Confirmer le mot de passe'),
+                decoration: InputDecoration(
+                  labelText: 'Confirmer le mot de passe',
+                  labelStyle: TextStyle(color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide(color: Colors.teal, width: 2),
+                  ),
+                ),
                 obscureText: true,
                 onChanged: (value) => _confirmPassword = value,
                 validator: (value) {
@@ -120,6 +156,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _updateProfile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal, // Background color
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  textStyle: TextStyle(fontSize: 20),
+                ),
                 child: Text('Mettre à jour'),
               ),
             ],

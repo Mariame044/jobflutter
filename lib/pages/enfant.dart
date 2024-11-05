@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jobaventure/Service/enfant.dart';
 
-
 class ProgressionPage extends StatefulWidget {
   final EnfantService enfantService;
 
@@ -17,7 +16,6 @@ class _ProgressionPageState extends State<ProgressionPage> {
   @override
   void initState() {
     super.initState();
-    // Appeler l'API pour récupérer la progression de l'enfant connecté
     futureProgression = widget.enfantService.getProgression();
   }
 
@@ -25,7 +23,17 @@ class _ProgressionPageState extends State<ProgressionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Progression de l\'enfant'),
+        title: Text(
+          'Progression de l\'enfant',
+          style: TextStyle(
+            fontFamily: 'Comic Sans MS',
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.teal,
+        elevation: 5,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: futureProgression,
@@ -33,40 +41,102 @@ class _ProgressionPageState extends State<ProgressionPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Erreur: ${snapshot.error}'));
+            return Center(child: Text('Erreur: ${snapshot.error}', style: TextStyle(color: Colors.red)));
           } else if (!snapshot.hasData) {
             return Center(child: Text('Aucune donnée disponible.'));
           }
 
           final progression = snapshot.data!;
-          
-          // Affichage des détails de la progression
-          return Padding(
+
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.lightBlue.shade100, Colors.green.shade100],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
-                Text(
-                  'Nom : ${progression['nom'] ?? 'N/A'}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nom : ${progression['nom'] ?? 'N/A'}',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        _buildScoreRow(progression['score']),
+                        SizedBox(height: 12),
+                        _buildQuestionsResolvedRow(progression['questionsResolues']),
+                        SizedBox(height: 12),
+                        _buildLevelRow(progression['niveau']),
+                        SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Score : ${progression['score'] ?? 'N/A'}',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Niveau : ${progression['niveau'] ?? 'N/A'}',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 10),
-                // Afficher d'autres informations de progression ici
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildScoreRow(dynamic score) {
+    return Row(
+      children: [
+        Icon(Icons.score, color: Colors.amber, size: 40),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Score : ${score ?? 'N/A'}',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuestionsResolvedRow(List<dynamic>? questionsResolues) {
+    return Row(
+      children: [
+        Icon(Icons.check_circle, color: Colors.green, size: 40),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Questions Résolues : ${questionsResolues?.length ?? 0}',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLevelRow(dynamic niveau) {
+    return Row(
+      children: [
+        Icon(Icons.grade, color: Colors.blue, size: 40),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Niveau : ${niveau ?? 'N/A'}',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
     );
   }
 }

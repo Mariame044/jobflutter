@@ -1,7 +1,28 @@
 // Define the Interview class
 
 
+import 'package:jobaventure/models/RegisterUserDto.dart';
+
 import 'categorie.dart';
+class Admin {
+  final int id;
+  final String nom;
+  final String email;
+
+  Admin({
+    required this.id,
+    required this.nom,
+    required this.email,
+  });
+
+  factory Admin.fromJson(Map<String, dynamic> json) {
+    return Admin(
+      id: json['id'],
+      nom: json['nom'],
+      email: json['email'],
+    );
+  }
+}
 
 class Interview {
   final int id;
@@ -9,6 +30,7 @@ class Interview {
   // final String titre;
   final String url; // URL de la vidéo
   final Metier? metier; // Can be Metier or null
+   final Admin? admin; // Can be Metier or null
   final int? nombreDeVues; // Optional property
   final DateTime? date; // Add DateTime property for date
 
@@ -18,6 +40,7 @@ class Interview {
       // required this.titre,
     required this.url,
     this.metier, // Nullable field
+    this.admin,
     this.nombreDeVues, // Optional field
     this.date, // Nullable field for date
   });

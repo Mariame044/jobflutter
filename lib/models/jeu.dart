@@ -16,6 +16,7 @@ class Jeuderole {
     required this.description,
     this.metier,
     this.imageUrl,
+    this.audioUrl,
   });
 
   factory Jeuderole.fromJson(Map<String, dynamic> json) {
@@ -25,6 +26,7 @@ class Jeuderole {
       description: json['description'] as String,
       metier: json['metier'] != null ? Metier.fromJson(json['metier']) : null,
       imageUrl: json['imageUrl'] as String?,
+      audioUrl: json['audioUrl'] as String?,
     );
   }
 
@@ -35,6 +37,7 @@ class Jeuderole {
       'description': description,
       'metier': metier?.toJson(),
       'imageUrl': imageUrl,
+      'audioUrl' : audioUrl,
     };
   }
 }

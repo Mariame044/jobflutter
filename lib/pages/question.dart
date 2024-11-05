@@ -1,11 +1,10 @@
-// poser_question_page.dart
 import 'package:flutter/material.dart';
 import 'package:jobaventure/models/question1.dart';
 import 'package:jobaventure/Service/interview.dart';
 
 class PoserQuestionPage extends StatefulWidget {
-  final int interviewId; // ID de l'interview à laquelle la question est posée
-  final InterviewService interviewService; // Service d'interview pour poser la question
+  final int interviewId;
+  final InterviewService interviewService;
 
   const PoserQuestionPage({Key? key, required this.interviewId, required this.interviewService}) : super(key: key);
 
@@ -15,7 +14,8 @@ class PoserQuestionPage extends StatefulWidget {
 
 class _PoserQuestionPageState extends State<PoserQuestionPage> {
   final TextEditingController _questionController = TextEditingController();
-  String _emailEnfant = ""; // Ici, vous pouvez récupérer l'email de l'enfant si nécessaire
+  String _emailEnfant = "";
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -25,29 +25,57 @@ class _PoserQuestionPageState extends State<PoserQuestionPage> {
 
   Future<void> _submitQuestion() async {
     if (_questionController.text.isNotEmpty) {
+      setState(() => _isSubmitting = true);
+
       Question1 question = Question1(
         interviewId: widget.interviewId,
-        emailEnfant: _emailEnfant, // Utilisez l'email de l'enfant
+        emailEnfant: _emailEnfant,
         contenu: _questionController.text,
         date: DateTime.now(),
       );
 
       try {
         await widget.interviewService.poserQuestion(question);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Question posée avec succès !'),
-        ));
-        _questionController.clear(); // Effacer le champ de texte
+        _showSuccessDialog(); // Affiche un dialogue de confirmation
+        _questionController.clear();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Erreur lors de la pose de la question : $e'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur : $e', style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() => _isSubmitting = false);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Veuillez entrer une question.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Veuillez entrer une question.', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Succès'),
+          content: Text('Votre question a été envoyée avec succès !'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer la boîte de dialogue
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -55,24 +83,47 @@ class _PoserQuestionPageState extends State<PoserQuestionPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Poser une Question'),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              "Votre question",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
             TextField(
               controller: _questionController,
               decoration: InputDecoration(
-                labelText: 'Votre question',
-                border: OutlineInputBorder(),
+                hintText: 'Écrivez votre question ici...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               maxLines: 3,
             ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _submitQuestion,
-              child: Text('Soumettre'),
-            ),
+            SizedBox(height: 20),
+            _isSubmitting
+                ? Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _submitQuestion,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+                      'Soumettre',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
           ],
         ),
       ),

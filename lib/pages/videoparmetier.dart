@@ -44,44 +44,57 @@ class GroupedVideosScreen extends StatelessWidget {
 ),
  body: Column(
         children: [
-          // Ajout du container avec les boutons animés
-          Container(
-            padding: EdgeInsets.all(14.0), // Padding autour du Wrap
-            child: Wrap(
-              spacing: 20.0, // Espacement horizontal entre les boutons
-              runSpacing: 20.0, // Espacement vertical entre les boutons
-              alignment: WrapAlignment.center, // Centrer les boutons horizontalement
-              children: [
-                _buildAnimatedButton(
-                  context: context,
-                  label: 'Vidéo',
-                  color: Color(0xFF00BFFF), // Cyan clair
-                  textColor: Colors.white,
-                  onPressed: () async {
-                    await _handleVideoButton(context);
-                  },
-                ),
-                _buildAnimatedButton(
-                  context: context,
-                  label: 'Jeux',
-                  color: Color(0xFFB0BEC5), // Gris clair
-                  textColor: Colors.black,
-                 onPressed: () async {
-                    await _handleJeuButton(context);
-                  },
-                ),
-                _buildAnimatedButton(
-                  context: context,
-                  label: 'Interviews',
-                  color: Color(0xFF8BC34A), // Vert clair
-                  textColor: Colors.white,
-                  onPressed: () async {
-                    await _handleInterviewButton(context);
-                  },
-                ),
-              ],
-            ),
+         Container(
+  padding: EdgeInsets.all(14.0), // Padding autour du Wrap
+  height: 100, // Définir une hauteur fixe pour le conteneur
+  child: SingleChildScrollView(
+    scrollDirection: Axis.horizontal, // Défilement horizontal
+    child: Wrap(
+      spacing: 20.0, // Espacement horizontal entre les boutons
+      runSpacing: 20.0, // Espacement vertical entre les boutons
+      alignment: WrapAlignment.center, // Centrer les boutons horizontalement
+      children: [
+        Container( // Ajout d'un Container pour le bouton Vidéo
+          margin: EdgeInsets.symmetric(horizontal: 10.0), // Marges horizontales
+          child: _buildAnimatedButton(
+            context: context,
+            label: 'Vidéo',
+            color: Color(0xFF00BFFF), // Cyan clair
+            textColor: Colors.white,
+            onPressed: () async {
+              await _handleVideoButton(context);
+            },
           ),
+        ),
+        Container( // Ajout d'un Container pour le bouton Jeux
+          margin: EdgeInsets.symmetric(horizontal: 10.0), // Marges horizontales
+          child: _buildAnimatedButton(
+            context: context,
+            label: 'Jeux',
+            color: Color(0xFFB0BEC5), // Gris clair
+            textColor: Colors.black,
+            onPressed: () async {
+              await _handleJeuButton(context);
+            },
+          ),
+        ),
+        Container( // Ajout d'un Container pour le bouton Interviews
+          margin: EdgeInsets.symmetric(horizontal: 10.0), // Marges horizontales
+          child: _buildAnimatedButton(
+            context: context,
+            label: 'Interviews',
+            color: Color(0xFF8BC34A), // Vert clair
+            textColor: Colors.white,
+            onPressed: () async {
+              await _handleInterviewButton(context);
+            },
+          ),
+        ),
+        // Ajoutez d'autres boutons ici si nécessaire
+      ],
+    ),
+  ),
+),
           Expanded(
             child: videos == null || videos!.isEmpty
                 ? Center(

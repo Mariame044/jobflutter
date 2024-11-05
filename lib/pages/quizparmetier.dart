@@ -6,12 +6,10 @@ import '../models/jeu.dart';
 
 class QuizParMetierPage extends StatefulWidget {
   final QuizService quizService;
-  
 
   QuizParMetierPage({
     Key? key,
     required this.quizService,
-  
   }) : super(key: key);
 
   @override
@@ -31,12 +29,8 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
 
   Future<void> _loadQuizParMetier() async {
     try {
-      // Assurez-vous que getQuizByMetierAndAge est correctement défini dans QuizService
       List<Quiz>? quizzes = await widget.quizService.getQuizByMetierAndAge();
-
-      // Vérifiez si quizzes n'est pas nul
       if (quizzes != null) {
-        // Regroupement des quizzes par métier
         quizParMetier = {};
         for (var quiz in quizzes) {
           String metierNom = quiz.metier?.nom ?? 'Sans métier';
@@ -45,7 +39,6 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
       } else {
         errorMessage = "Aucun quiz trouvé pour ce métier.";
       }
-      
       setState(() {
         isLoading = false;
       });
@@ -60,9 +53,10 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF1F5F9),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
           icon: Image.asset(
             'assets/images/d.png',
@@ -74,35 +68,47 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
       ),
       body: Column(
         children: [
-          SizedBox(height: 30),
+          const SizedBox(height: 20),
           Center(
             child: Container(
-              width: 120,
-              height: 120,
+              width: 130,
+              height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF036A94),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF036A94), Color(0xFF0FA3B1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: Offset(0, 6),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
                   'QUIZ',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    letterSpacing: 2,
                   ),
                 ),
               ),
             ),
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : errorMessage != null
                     ? Center(child: Text(errorMessage!))
                     : Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: ListView.builder(
                           itemCount: quizParMetier.keys.length,
                           itemBuilder: (context, index) {
@@ -113,12 +119,13 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
                                   child: Text(
                                     metier,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 18.0,
+                                      fontSize: 20.0,
+                                      color: Color(0xFF0FA3B1),
                                     ),
                                   ),
                                 ),
@@ -134,7 +141,6 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, quizIndex) {
                                     Quiz quiz = quizzes[quizIndex];
-
                                     return GestureDetector(
                                       onTap: () {
                                         Navigator.push(
@@ -148,20 +154,21 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
                                         );
                                       },
                                       child: Card(
-                                        elevation: 4,
+                                        color: Colors.white,
+                                        elevation: 5,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(16),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(12.0),
                                           child: Row(
                                             children: [
                                               Icon(
                                                 Icons.quiz,
-                                                size: 50,
+                                                size: 48,
                                                 color: Color(0xFF036A94),
                                               ),
-                                              SizedBox(width: 16),
+                                              const SizedBox(width: 16),
                                               Expanded(
                                                 child: Column(
                                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -171,22 +178,30 @@ class _QuizParMetierPageState extends State<QuizParMetierPage> {
                                                       quiz.titre,
                                                       style: TextStyle(
                                                         fontWeight: FontWeight.bold,
-                                                        fontSize: 16.0,
+                                                        fontSize: 18.0,
                                                         color: Color(0xFF036A94),
                                                       ),
                                                       textAlign: TextAlign.left,
                                                     ),
-                                                    SizedBox(height: 4.0),
+                                                    const SizedBox(height: 4.0),
                                                     Text(
                                                       quiz.description,
                                                       style: TextStyle(
                                                         fontSize: 14.0,
-                                                        color: Colors.grey[600],
+                                                        color: Colors.grey[700],
                                                       ),
                                                       textAlign: TextAlign.left,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
                                                     ),
                                                   ],
                                                 ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Icon(
+                                                Icons.arrow_forward_ios,
+                                                size: 18,
+                                                color: Color(0xFF0FA3B1),
                                               ),
                                             ],
                                           ),

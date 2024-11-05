@@ -97,7 +97,7 @@ class _CategoriePageState extends State<CategoriePage> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         title: Text('Métiers par Catégorie'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<Metier>>(
         future: futureMetiers,

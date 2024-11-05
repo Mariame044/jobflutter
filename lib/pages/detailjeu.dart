@@ -19,12 +19,13 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
   Map<int, String?> selectedAnswers = {};
   int currentQuestionIndex = 0;
   int score = 0;
-  Set<int> answeredQuestions = {}; // Pour suivre les questions déjà répondues
-  final AudioPlayer audioPlayer = AudioPlayer(); // Initialize AudioPlayer
+  Set<int> answeredQuestions = {};
+  final AudioPlayer audioPlayer = AudioPlayer();
+  bool isPlaying = false; // Pour suivre l'état de lecture
 
   @override
   void dispose() {
-    audioPlayer.dispose(); // Dispose of the audio player when the widget is removed
+    audioPlayer.dispose();
     super.dispose();
   }
 
@@ -40,7 +41,7 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Détails du Jeu'),
-        backgroundColor: Color(0xFF6200EE), // Couleur de l'appbar
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<Jeuderole>(
         future: futureJeu,
@@ -59,7 +60,7 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
             child: Column(
               children: [
                 Card(
-                  elevation: 4, // Élévation de la carte pour un effet de profondeur
+                  elevation: 4,
                   child: Column(
                     children: [
                       Image.network(
@@ -74,6 +75,35 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
                           style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blueGrey[800]),
                         ),
                       ),
+                     IconButton(
+  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+  onPressed: () async {
+    String? audioUrl = jeu.audioUrl;
+    if (audioUrl == null) {
+      _afficherDialog('Erreur', 'L\'URL audio n\'est pas disponible.');
+      return;
+    }
+
+    // Sanitize URL and use test URL if necessary
+    final sanitizedUrl = Uri.parse('http://localhost:8080/${jeu.audioUrl?.replaceAll(r'\', '/')}').toString();
+    final urlSource = UrlSource(sanitizedUrl);
+
+    if (isPlaying) {
+      await audioPlayer.pause();
+    } else {
+      try {
+        await audioPlayer.play(urlSource);
+      } catch (e) {
+        _afficherDialog('Erreur', 'Impossible de lire l\'audio : $e');
+      }
+    }
+
+    setState(() {
+      isPlaying = !isPlaying;
+    });
+  },
+),
+
                     ],
                   ),
                 ),
@@ -91,7 +121,6 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
 
                     final questions = snapshot.data!;
 
-                    // Vérifiez si l'index est dans la plage
                     if (currentQuestionIndex >= questions.length) {
                       return Center(child: Text('Toutes les questions ont été traitées.'));
                     }
@@ -131,17 +160,16 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
                             SizedBox(height: 20),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF6200EE), // Couleur du bouton
-                                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0), // Padding autour du texte
+                                backgroundColor: Color(0xFF6200EE),
+                                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0), // Coins arrondis
+                                  borderRadius: BorderRadius.circular(30.0),
                                 ),
                               ),
                               onPressed: () async {
-                                // Vérifiez si la réponse a été sélectionnée
                                 if (selectedAnswers[currentQuestion.id!] == null) {
                                   _afficherDialog('Erreur', 'Veuillez sélectionner une réponse avant de continuer.');
-                                  return; // Ne pas continuer si aucune réponse n'est sélectionnée
+                                  return;
                                 }
                                 await verifierReponseEtPasserSuivant(currentQuestionIndex, questions);
                               },
@@ -163,40 +191,34 @@ class _DetailJeuPageState extends State<DetailJeuPage> {
 
   Future<void> verifierReponseEtPasserSuivant(int questionIndex, List<Question> questions) async {
     try {
-      // Obtenez la réponse donnée par l'utilisateur
       String reponseDonnee = selectedAnswers[questions[questionIndex].id!] ?? '';
-      String? reponseCorrecte = questions[questionIndex].reponse!.correct; // Obtenez la réponse correcte
+      String? reponseCorrecte = questions[questionIndex].reponse!.correct;
 
-      // Vérifiez si la réponse donnée est correcte
       Map<String, dynamic> result = await widget.jeuderoleService.verifierReponse(widget.jeuId, questions[questionIndex].id!, reponseDonnee);
     
       if (reponseDonnee == reponseCorrecte) {
-        score++; // Incrémentez le score si la réponse est correcte
-        answeredQuestions.add(questions[questionIndex].id!); // Marquez la question comme répondue
+        score++;
+        answeredQuestions.add(questions[questionIndex].id!);
         _afficherDialog('Réponse correcte', 'Bonne réponse ! Vous avez gagné un point.');
 
-        // Passez à la question suivante
         setState(() {
           currentQuestionIndex++;
         });
       } else {
-        // Si la réponse est incorrecte, afficher un message et ne pas changer la question
         _afficherDialog('Réponse incorrecte', 'Votre réponse est incorrecte, veuillez essayer à nouveau.');
       }
 
-      // Si toutes les questions sont répondues, affichez le score
       if (currentQuestionIndex >= questions.length) {
         await calculerScore(questions);
       }
 
     } catch (error) {
       _afficherDialog('Erreur', 'Une erreur est survenue : $error');
-      print(error); // Afficher l'erreur dans la console pour le débogage
+      print(error);
     }
   }
 
   Future<void> calculerScore(List<Question> questions) async {
-    // Utilisez le score accumulé
     _afficherDialog('Score', 'Votre score est : $score');
   }
 
