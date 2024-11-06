@@ -56,13 +56,13 @@ class _CategoriePageState extends State<CategoriePage> with SingleTickerProvider
       return Colors.greenAccent;  // Couleur pour la catégorie santé
     case 'éducation':
       return Colors.orangeAccent;  // Couleur pour la catégorie éducation
-    case 'artisanat':
+    case 'Menuiserie':
       return Colors.purpleAccent;  // Couleur pour la catégorie artisanat
     case 'dessin':
       return Colors.redAccent;     // Couleur pour la catégorie dessin
     case 'musique':
       return Colors.tealAccent;    // Couleur pour la catégorie musique
-    case 'sport':
+    case 'arts':
       return Colors.yellowAccent;   // Couleur pour la catégorie sport
     default:
       return Colors.grey;           // Couleur par défaut

@@ -22,6 +22,38 @@ class MetierService {
     };
   }
 
+// Basculer un métier dans les favoris (ajouter ou retirer)
+  Future<void> toggleFavori(int metierId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/toggle/$metierId'),
+      headers: await getHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Erreur lors du basculement du favori pour le métier $metierId: ${response.statusCode} ${response.body}');
+    }
+  }
+
+  // Récupérer la liste des métiers favoris
+  Future<List<Metier>> getFavoris() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/mes-favoris'),
+      headers: await getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      String utf8Body = utf8.decode(response.bodyBytes);
+      List<dynamic> jsonData = json.decode(utf8Body);
+      return jsonData.map((metier) => Metier.fromJson(metier)).toList();
+    } else {
+      throw Exception(
+          'Erreur lors du chargement des favoris: ${response.statusCode} ${response.body}');
+    }
+  }
+
+
+
   // Méthode pour récupérer les métiers
   Future<List<Metier>> getAllMetiers() async {
     final response = await http.get(
@@ -77,4 +109,5 @@ class ImageFromUrl extends StatelessWidget {
       },
     );
   }
+  
 }

@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           ClipRRect(
                             child: Image.asset(
-                              'assets/images/ac.png', // Remplacez par le chemin de l'image réelle
+                             'assets/images/ss.png', // Remplacez par le chemin de l'image réelle
                               height: 100,
                               width: 100,
                               fit: BoxFit.cover,
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           ClipRRect(
                             child: Image.asset(
-                              'assets/images/ab.png', // Remplacez par le chemin de l'image réelle
+                              'assets/images/cc.png', // Remplacez par le chemin de l'image réelle
                               height: 100,
                               width: 100,
                               fit: BoxFit.cover,
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ClipRRect(
                         child: Image.asset(
-                          'assets/images/ac.png', // Remplacez par le chemin de l'image réelle
+                          'assets/images/ad.png', // Remplacez par le chemin de l'image réelle
                           height: 100,
                           width: 100,
                           fit: BoxFit.cover,

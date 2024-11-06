@@ -43,8 +43,10 @@ class _EnfantSupervisionPageState extends State<EnfantSupervisionPage> {
     String badges = progression['badges'].isNotEmpty ? progression['badges'].join(', ') : 'Aucun badge';
     String score = progression['score'].toString();
     String questionsResolues = progression['questionsResolues'].toString();
-    String videos = progression['videos'].isNotEmpty ? progression['videos'].map((v) => v['description']).join(', ') : 'Aucune vidéo';
-    String interviews = progression['interviews'].isNotEmpty ? progression['interviews'].map((i) => i['description']).join(', ') : 'Aucune interview';
+    
+    // Structure de données pour les vidéos et interviews
+    List videos = progression['videos'] ?? [];
+    List interviews = progression['interviews'] ?? [];
 
     showDialog(
       context: context,
@@ -60,13 +62,34 @@ class _EnfantSupervisionPageState extends State<EnfantSupervisionPage> {
                 Text('Questions Résolues : $questionsResolues', style: TextStyle(fontSize: 16)),
                 Text('Badges : $badges', style: TextStyle(fontSize: 16)),
                 SizedBox(height: 10),
-                Text('Vidéos :', style: TextStyle(fontWeight: FontWeight.bold)),
-                for (var video in progression['videos']) 
-                  Text(' - ${video['description'] ?? 'Sans description'}', style: TextStyle(fontSize: 14)),
+
+                // Affichage du nombre de vidéos
+                Text('Vidéos (Total : ${videos.length}) :', style: TextStyle(fontWeight: FontWeight.bold)),
+                if (videos.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var video in videos)
+                        Text(' - ${video['description'] ?? 'Sans description'}', style: TextStyle(fontSize: 14)),
+                    ],
+                  )
+                else
+                  Text('Aucune vidéo', style: TextStyle(fontSize: 14)),
+
                 SizedBox(height: 10),
-                Text('Interviews :', style: TextStyle(fontWeight: FontWeight.bold)),
-                for (var interview in progression['interviews']) 
-                  Text(' - ${interview['description'] ?? 'Sans description'}', style: TextStyle(fontSize: 14)),
+
+                // Affichage du nombre d'interviews
+                Text('Interviews (Total : ${interviews.length}) :', style: TextStyle(fontWeight: FontWeight.bold)),
+                if (interviews.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var interview in interviews)
+                        Text(' - ${interview['description'] ?? 'Sans description'}', style: TextStyle(fontSize: 14)),
+                    ],
+                  )
+                else
+                  Text('Aucune interview', style: TextStyle(fontSize: 14)),
               ],
             ),
           ),

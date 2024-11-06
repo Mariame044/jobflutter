@@ -36,11 +36,11 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/logo.png
-    - assets/images/aa.png
-    - assets/images/ab.png
-    - assets/images/ac.png
+    - assets/images/ad.png
+    - assets/images/cc.png
+    - assets/images/ss.png
     - assets/images/DDD.png
     - assets/images/q.png
     - assets/images/d.png
     - assets/images/Loading_icon.gif
- 
+

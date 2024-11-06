@@ -135,6 +135,8 @@ class Enfant {
 class Users {
   final int id;
   final String nom;
+  final String email;
+  final int? age;
   final String? password; // Le mot de passe est optionnel
   final String? imageUrl; // L'URL de l'image est optionnelle
 
@@ -142,6 +144,9 @@ class Users {
   Users({
     required this.id,
     required this.nom,
+   required this.email,
+
+    this.age,
     this.password,
     this.imageUrl,
   });
@@ -151,6 +156,10 @@ class Users {
     return Users(
       id: json['id'] as int,
       nom: json['nom'] as String,
+      email: json['email'] as String,
+      age: json['age'],
+      
+    
       password: json['password'] as String?, // Peut être nul
       imageUrl: json['imageUrl'] as String?, // Peut être nul
     );
@@ -161,6 +170,7 @@ class Users {
     return {
       'id': id,
       'nom': nom,
+      'email' : email,
       'password': password,
       'imageUrl': imageUrl,
     };
