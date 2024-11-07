@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: Colors.teal[50],
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white,
         title: Text(
           'Mon Profil',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),

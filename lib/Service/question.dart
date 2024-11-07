@@ -64,12 +64,14 @@ class CombinedService {
 
   // Obtenir toutes les questions
   Future<List<Question>> getAllQuestions() async {
+     
     final response = await http.get(
       Uri.parse(baseUrlQuestion),
       headers: await getHeaders(),
     );
 
     if (response.statusCode == 200) {
+       String utf8Body = utf8.decode(response.bodyBytes);
       final List<dynamic> body = json.decode(response.body);
       return body.map((dynamic item) => Question.fromJson(item)).toList();
     } else {

@@ -32,7 +32,7 @@ class _ProgressionPageState extends State<ProgressionPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white,
         elevation: 5,
       ),
       body: FutureBuilder<Map<String, dynamic>>(

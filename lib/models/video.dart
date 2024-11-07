@@ -5,7 +5,7 @@ import 'categorie.dart';
 
 class Video {
   final int id;
-  final String titre; 
+ 
   
   final String description;
   final String url; // Video URL
@@ -15,7 +15,7 @@ class Video {
 
   Video({
     required this.id,
-    required this.titre,
+  
    
     required this.description,
     required this.url,
@@ -27,7 +27,7 @@ class Video {
   factory Video.fromJson(Map<String, dynamic> json) {
     return Video(
       id: json['id'],
-      titre: json['titre'],
+    
      
       description: json['description'],
       url: json['url'],
@@ -40,7 +40,7 @@ class Video {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'titre': titre,
+     
       'description': description,
       'url': url,
       'metier': metier?.toJson(),

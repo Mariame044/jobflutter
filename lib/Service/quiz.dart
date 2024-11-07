@@ -165,6 +165,7 @@ class QuizService {
     );
 
     if (response.statusCode == 200) {
+       String utf8Body = utf8.decode(response.bodyBytes);
       List<dynamic> jsonList = json.decode(utf8.decode(response.bodyBytes)); // Décodage en UTF-8
       return jsonList.map((json) => Quiz.fromJson(json)).toList(); // Mapper les vidéos
     } else {

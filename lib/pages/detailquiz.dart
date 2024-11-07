@@ -37,7 +37,7 @@ class _DetailQuizPageState extends State<DetailQuizPage> {
       appBar: AppBar(
         title: Text('Détails du Quiz', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<Quiz>(
         future: futureQuiz,

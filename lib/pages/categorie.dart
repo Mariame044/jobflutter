@@ -167,7 +167,7 @@ class _CategoriePageState extends State<CategoriePage> with SingleTickerProvider
                   child: metiersInCategory.isNotEmpty && metiersInCategory[0].imageUrl != null
                       ? ClipRRect(
                           child: FadeInImage.assetNetwork(
-                            placeholder: 'images/Loading_icon.gif',
+                            placeholder: 'assets/images/Loading_icon.gif',
                             image: 'http://localhost:8080/' + metiersInCategory[0].imageUrl!,
                             fit: BoxFit.cover,
                             imageErrorBuilder: (context, error, stackTrace) {

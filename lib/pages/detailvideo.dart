@@ -55,17 +55,11 @@ class VideoDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             children: [
               Container(
-                height: 300, // Ajustez la hauteur selon vos besoins
+                 // Ajustez la hauteur selon vos besoins
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
+                
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
